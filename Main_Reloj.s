@@ -57,10 +57,11 @@ PSECT udata_shr		    ; Memoria compartida
     ;Variables para la Hora
     valor:		DS 1	; Contiene valor a mostrar en los displays de 7-seg
     banderas:		DS 1	; Indica que display hay que encender
-    display:		DS 2
-   ; display2:		DS 1
-    ;display3:		DS 1
-    decenas:		DS 1
+    display:		DS 1	;variables de los displays
+    display1:		DS 1
+    display2:		DS 1
+    display3:		DS 1
+    decenas:		DS 1	;Variables para la hora
     segundos:		DS 1
     cont_decenas:	DS 1
     
@@ -138,10 +139,11 @@ MAIN:
     MOVLW   60		    ;precargamos para las decenas
     MOVWF   cont_decenas
     BANKSEL PORTD	    ; Cambio a banco 00
+    BSF	    PORTD,0
     
 LOOP:
     ; Código que se va a estar ejecutando mientras no hayan interrupciones
-
+    ;CALL    MOSTRAR_VOLOR
     CALL    SET_DISPLAY		; Guardamos los valores a enviar en PORTC para mostrar valor en hex
     GOTO    LOOP	
 
@@ -224,13 +226,15 @@ CONFIG_IO:
     CLRF    TRISC		; PORTC como salida
     BCF	    TRISD, 0		; RD0 como salida / display nibble alto
     BCF	    TRISD, 1		; RD1 como salida / display nibble bajo
-    BCF	    TRISD, 2		; RD2 como salida / indicador de estado
+    BCF	    TRISD, 2		
+    BCF	    TRISD, 3		
+    BCF	    TRISD, 4		
     BANKSEL PORTC
     CLRF    PORTC		; Apagamos PORTC
     BCF	    PORTD, 0		; Apagamos RD0
     BCF	    PORTD, 1		; Apagamos RD1
-   ; BCF	    PORTD, 2		; Apagamos RD2
-    ;BCF	    PORTD, 3		; Apagamos RD3
+  ;  BCF	    PORTD, 2		; Apagamos RD2
+   ; BCF	    PORTD, 3		; Apagamos RD3
     
     CLRF    PORTA		; Apagamos PORTA
     CLRF    banderas		; Limpiamos GPR
@@ -258,9 +262,9 @@ SET_DISPLAY:
     
     MOVF    decenas, W	; Movemos nibble alto a W
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-    MOVWF   display+1		; Guardamos en display+1
-       
-   /* MOVF    decenas, W	; Movemos nibble alto a W
+    MOVWF   display1		; Guardamos en display+1
+ 
+    MOVF    decenas, W	; Movemos nibble alto a W
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display2		; Guardamos en display+1
    
@@ -269,41 +273,52 @@ SET_DISPLAY:
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display3		; Guardamos en display+1
     RETURN
-    */
+
 MOSTRAR_VOLOR:
-    BCF	    PORTD, 0		; Apagamos display de d0
-    BCF	    PORTD, 1		; Apagamos display de d1
-    ;BCF	    PORTD, 2		; Apagamos display de d2
-    ;BCF	    PORTD, 3		; Apagamos display de d3
-    BTFSC   banderas, 0		; Verificamos bandera
-    ;GOTO    DISPLAY_3		;  
-    GOTO    DISPLAY_1
+   BTFSC    PORTD,0
+   GOTO	    DISPLAY_0
+   BTFSC    PORTD,1
+   GOTO	    DISPLAY_1
+   BTFSC    PORTD,2
+   GOTO	    DISPLAY_2
+   BTFSC    PORTD,3
+   GOTO	    DISPLAY_3
+    
     
     DISPLAY_0:			
 	MOVF    display, W	; Movemos display a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
-	BSF	PORTD, 1	; Encendemos display de nibble bajo
-	BSF	banderas, 0	; Cambiamos bandera para cambiar el otro display en la siguiente interrupción
-    RETURN
-
+	BCF	PORTD, 0	; Encendemos display de nibble bajo
+	BSF	PORTD,1
+	BCF	PORTD,2
+	BCF	PORTD,3
+	RETURN
     DISPLAY_1:
 	MOVF    display+1, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
-	BSF	PORTD, 0	; Encendemos display de nibble alto
-	BCF	banderas, 0	; Cambiamos bandera para cambiar el otro display en la siguiente interrupción
-	 
-    /*DISPLAY_2:
+	BSF	PORTD, 2	; Encendemos display de nibble alto
+	BCF	PORTD, 0	; Encendemos display de nibble alto
+	BCF	PORTD, 1	; Encendemos display de nibble alto
+	BCF	PORTD, 3	; Encendemos display de nibble alto
+	RETURN
+    DISPLAY_2:
 	MOVF    display2, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
-	BSF	PORTD, 0	; Encendemos display de nibble alto
-	BSF	banderas, 0	; Cambiamos bandera para cambiar el otro display en la siguiente interrupción
-
+	BSF	PORTD, 3	; Encendemos display de nibble alto
+	BCF	PORTD, 0	; Encendemos display de nibble alto
+	BCF	PORTD, 1	; Encendemos display de nibble alto
+	BCF	PORTD, 2	; Encendemos display de nibble alto
+	
+	RETURN
     DISPLAY_3:
 	MOVF    display3, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
 	BSF	PORTD, 0	; Encendemos display de nibble alto
-	BCF	banderas, 0	; Cambiamos bandera para cambiar el otro display en la siguiente interrupción
-    */
+	BCF	PORTD, 1
+	BCF	PORTD, 2
+	BCF	PORTD, 3
+    
+    RETURN
     
     
 ORG 200h
@@ -322,4 +337,5 @@ TABLA_7SEG:
     RETLW   00000111B	;7
     RETLW   01111111B	;8
     RETLW   01101111B	;9
+
 
