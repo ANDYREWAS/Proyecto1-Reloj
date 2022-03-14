@@ -1,0 +1,340 @@
+%CMF
+# %PSECTS Section
+# For each object file, details of its psects are enumerated here.
+# The begining of the section is indicated by %PSECTS.  The first
+# line indicates the name of the first object file, e.g.
+#    $foo.obj
+# Each line that follows describes a psect in that object file, until
+# the next object file.  The lines that describe a psect have the
+# format:
+#    <psect name> <class name> <space> <link address> <load addresses> <length> <delta> <reloc>
+# All addresses and the length are given in unqualified hexadecimal
+# in delta units.  Any other numeric values are decimal.
+%PSECTS
+$build/default/production/Main_Reloj.o
+resVect CODE 0 0 0 3 2 1
+intVect CODE 0 0 0 20E 2 1
+udata_shr COMMON 1 70 70 C 1 1
+config CONFIG 4 2007 2007 2 2 1
+# %UNUSED Section
+# This section enumerates the unused ranges of each CLASS. Each entry
+# is described on a single line as follows:
+#    <class name> <range> <delta>
+# Addresses given in the range are in hexadecimal and units of delta.
+%UNUSED
+RAM 20-6F 1
+RAM A0-EF 1
+RAM 110-16F 1
+RAM 190-1EF 1
+BANK0 20-6F 1
+BANK1 A0-EF 1
+BANK2 110-16F 1
+BANK3 190-1EF 1
+CONST 20E-1FFF 2
+ENTRY 20E-1FFF 2
+IDLOC 2000-2003 2
+CODE 20E-1FFF 2
+COMMON 7C-7F 1
+EEDATA 2100-21FF 2
+STRCODE 20E-1FFF 2
+STRING 20E-1FFF 2
+# %LINETAB Section
+# This section enumerates the file/line to address mappings.
+# The beginning of the section is indicated by %LINETAB.
+# The first line indicates the name of the first object file, e.g.
+#   $foo.obj
+# Each line that follows describes a single mapping until the next
+# object file.  Mappings have the following format:
+#    <address> <psect name> <class name> ><line number>:<file name>
+# The address is absolute and given given in unqualified hex 
+# in delta units of the psect. All mappings within an object file
+# are in ascending order of addresses.
+# All other numeric values are in decimal.
+%LINETAB
+$build/default/production/Main_Reloj.o
+0 intVect CODE >76:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4 intVect CODE >79:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5 intVect CODE >80:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6 intVect CODE >81:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7 intVect CODE >84:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8 intVect CODE >85:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9 intVect CODE >86:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A intVect CODE >87:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B intVect CODE >88:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C intVect CODE >89:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+D intVect CODE >93:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+E intVect CODE >94:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+F intVect CODE >95:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+10 intVect CODE >96:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+11 intVect CODE >97:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+12 intVect CODE >101:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+14 intVect CODE >101:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+15 intVect CODE >101:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+16 intVect CODE >101:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+17 intVect CODE >102:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+18 intVect CODE >103:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+19 intVect CODE >106:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1A intVect CODE >106:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1B intVect CODE >106:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1C intVect CODE >106:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1D intVect CODE >106:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1E intVect CODE >107:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+1F intVect CODE >108:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+20 intVect CODE >109:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+21 intVect CODE >110:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+22 intVect CODE >113:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+23 intVect CODE >114:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+24 intVect CODE >115:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+25 intVect CODE >116:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+26 intVect CODE >117:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+27 intVect CODE >119:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+28 intVect CODE >122:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+29 intVect CODE >123:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2A intVect CODE >124:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2B intVect CODE >125:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2C intVect CODE >128:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2D intVect CODE >129:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2E intVect CODE >130:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2F intVect CODE >131:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+30 intVect CODE >132:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+31 intVect CODE >133:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+32 intVect CODE >134:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+33 intVect CODE >135:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+34 intVect CODE >136:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+35 intVect CODE >137:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+36 intVect CODE >138:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+37 intVect CODE >139:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+38 intVect CODE >140:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+39 intVect CODE >141:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+3B intVect CODE >142:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+3C intVect CODE >146:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+3D intVect CODE >147:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+3E intVect CODE >150:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+3F intVect CODE >151:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+40 intVect CODE >152:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+41 intVect CODE >153:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+42 intVect CODE >154:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+43 intVect CODE >155:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+44 intVect CODE >156:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+45 intVect CODE >159:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+46 intVect CODE >160:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+47 intVect CODE >161:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+48 intVect CODE >162:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+49 intVect CODE >163:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4A intVect CODE >164:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4B intVect CODE >167:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4D intVect CODE >168:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4E intVect CODE >169:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+4F intVect CODE >170:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+50 intVect CODE >171:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+51 intVect CODE >172:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+52 intVect CODE >176:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+54 intVect CODE >177:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+55 intVect CODE >178:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+56 intVect CODE >179:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+57 intVect CODE >180:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+58 intVect CODE >181:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+59 intVect CODE >182:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5B intVect CODE >182:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5C intVect CODE >182:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5D intVect CODE >182:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5E intVect CODE >183:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+5F intVect CODE >186:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+61 intVect CODE >187:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+62 intVect CODE >188:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+63 intVect CODE >189:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+64 intVect CODE >190:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+65 intVect CODE >191:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+66 intVect CODE >192:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+67 intVect CODE >194:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+68 intVect CODE >194:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+69 intVect CODE >194:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6A intVect CODE >194:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6B intVect CODE >194:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6C intVect CODE >195:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6D intVect CODE >198:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+6F intVect CODE >199:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+70 intVect CODE >200:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+71 intVect CODE >203:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+73 intVect CODE >204:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+74 intVect CODE >205:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+75 intVect CODE >206:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+76 intVect CODE >207:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+77 intVect CODE >208:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+78 intVect CODE >209:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+79 intVect CODE >210:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7A intVect CODE >211:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7B intVect CODE >215:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7D intVect CODE >216:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7E intVect CODE >217:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+7F intVect CODE >218:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+81 intVect CODE >219:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+82 intVect CODE >220:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+83 intVect CODE >221:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+85 intVect CODE >222:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+86 intVect CODE >225:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+88 intVect CODE >226:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+89 intVect CODE >227:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8A intVect CODE >228:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8B intVect CODE >229:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8C intVect CODE >230:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8D intVect CODE >231:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+8E intVect CODE >232:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+90 intVect CODE >233:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+91 intVect CODE >234:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+92 intVect CODE >235:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+93 intVect CODE >236:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+94 intVect CODE >237:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+95 intVect CODE >239:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+96 intVect CODE >240:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+97 intVect CODE >241:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+98 intVect CODE >244:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9A intVect CODE >245:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9B intVect CODE >246:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9C intVect CODE >247:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9E intVect CODE >248:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+9F intVect CODE >249:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A0 intVect CODE >250:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A1 intVect CODE >251:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A2 intVect CODE >252:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A3 intVect CODE >253:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A4 intVect CODE >254:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A5 intVect CODE >259:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A6 intVect CODE >260:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A7 intVect CODE >261:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A8 intVect CODE >263:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+A9 intVect CODE >264:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AA intVect CODE >265:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AB intVect CODE >267:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AC intVect CODE >268:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AD intVect CODE >269:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AE intVect CODE >272:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+AF intVect CODE >273:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B0 intVect CODE >274:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B1 intVect CODE >275:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B2 intVect CODE >278:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B3 intVect CODE >279:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B4 intVect CODE >281:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B5 intVect CODE >282:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B6 intVect CODE >284:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B7 intVect CODE >285:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B8 intVect CODE >287:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+B9 intVect CODE >288:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BA intVect CODE >293:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BB intVect CODE >294:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BC intVect CODE >295:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BD intVect CODE >296:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BE intVect CODE >298:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+BF intVect CODE >301:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C0 intVect CODE >302:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C1 intVect CODE >303:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C2 intVect CODE >304:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C3 intVect CODE >306:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C4 intVect CODE >308:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C5 intVect CODE >309:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C6 intVect CODE >310:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C7 intVect CODE >311:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C8 intVect CODE >313:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+C9 intVect CODE >315:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+CA intVect CODE >316:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+CB intVect CODE >317:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+CC intVect CODE >318:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+CD intVect CODE >320:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+CE intVect CODE >323:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+200 intVect CODE >325:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+201 intVect CODE >326:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+202 intVect CODE >327:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+203 intVect CODE >328:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+204 intVect CODE >329:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+205 intVect CODE >330:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+206 intVect CODE >331:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+207 intVect CODE >332:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+208 intVect CODE >333:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+209 intVect CODE >334:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+20A intVect CODE >335:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+20B intVect CODE >336:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+20C intVect CODE >337:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+20D intVect CODE >338:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+0 resVect CODE >69:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+0 resVect CODE >72:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+2 resVect CODE >73:C:\Users\Josea\MPLABXProjects\Proyecto #1 - Reloj.X\Main_Reloj.s
+# %SYMTAB Section
+# An enumeration of all symbols in the program.
+# The beginning of the section is indicated by %SYMTAB.
+# Each line describes a single symbol as follows:
+#    <label> <value> [-]<load-adj> <class> <space> <psect> <file-name>
+# The value and load-adj are both in unqualified hexadecimal.
+# All other numeric values are in decimal.  The load-adj is the
+# quantity one needs to add to the symbol value in order to obtain the load
+# address of the symbol.  This value may be signed. If the symbol
+# was defined in a psect then <psect> will be "-". File-name
+# is the name of the object file in which the symbol was defined.
+%SYMTAB
+__Hspace_0 20E 0 ABS 0 - -
+__Hspace_1 7C 0 ABS 0 - -
+__Hspace_3 0 0 ABS 0 - -
+__Hspace_4 4010 0 ABS 0 - -
+__Hudata_bank0 0 0 ABS 0 udata_bank0 -
+__Hudata_bank1 0 0 ABS 0 udata_bank1 -
+__Hudata_bank2 0 0 ABS 0 udata_bank2 -
+__Hudata_bank3 0 0 ABS 0 udata_bank3 -
+__LresVect 0 0 ABS 0 resVect -
+__Hedata 0 0 ABS 0 edata -
+__Hudata 0 0 ABS 0 udata -
+__Hconfig 4012 0 CONFIG 4 config -
+__Ledata 0 0 ABS 0 edata -
+__Ludata 0 0 ABS 0 udata -
+__Hcode 0 0 ABS 0 code -
+__Hdata 0 0 ABS 0 data -
+__Lcode 0 0 ABS 0 code -
+__Ldata 0 0 ABS 0 data -
+__S0 0 0 ABS 0 - -
+__S1 7C 0 ABS 0 - -
+__S3 0 0 ABS 0 - -
+__HresVect 0 0 ABS 0 resVect -
+__Lconfig 0 0 CONFIG 4 config -
+__LintVect 0 0 ABS 0 intVect -
+__Lspace_0 0 0 ABS 0 - -
+__Lspace_1 0 0 ABS 0 - -
+__Lspace_3 0 0 ABS 0 - -
+__Lspace_4 0 0 ABS 0 - -
+__Ludata_bank0 0 0 ABS 0 udata_bank0 -
+__Ludata_bank1 0 0 ABS 0 udata_bank1 -
+__Ludata_bank2 0 0 ABS 0 udata_bank2 -
+__Ludata_bank3 0 0 ABS 0 udata_bank3 -
+__Hudata_shr 0 0 ABS 0 udata_shr -
+__Ludata_shr 0 0 ABS 0 udata_shr -
+__HintVect 0 0 ABS 0 intVect -
+# %SPLITSTAB Section
+# This section enumerates all the psect splits performed by the assembler.
+# The beginning of the section is indicated by %SPLITSTAB.
+# Each line is a record a particular split, where the parent psect is on
+# the left and the child on the right.  Note that a child psect is always
+# split form the top of the parent psect. All splits from a given parent
+# are listed in the order in which they occurred.
+%SPLITSTAB
+# %DABS Section
+# This section contains a table of all usuage of the assember
+# directive DABS in the program. Each line has the following format:
+#   <name> <space> <address> <size>
+# If the DABS was originally labelled then that shall be <name>,
+# otherwise name will be "-".  The <space> number is in decimal.
+# <address> and <size> are in byte units as unqaulified hexadecimal
+%DABS
+# %SEGMENTS Section
+# This sections enumerates the segments of the program.  Each segment
+# is described on a single line as follows:
+#    <name> <space> <link address> <file address> <size> <delta>
+# Addresses and size are in unqualified hexadecimal.  The link address
+# and size are in units of delta. The file address is in units of bytes.
+# All other numeric quantities are in decimal.
+%SEGMENTS
+udata_shr 1 70 70 C 1
+# %NOTES Section
+# This section contains data of all the note-psects.  The beginning of the section
+# is indicated by %NOTES. The first line indicates the name and decimal
+# byte-length of the first note-psect, e.g.
+#   $codecov_info_hdr 16
+# Each line that follows contains the byte-data of the psect in hexadecimal as a
+# space-separated list. These lines are limited to 16 bytes of data.
+%NOTES
