@@ -142,8 +142,7 @@ MAIN:
     BSF	    PORTD,0
     
 LOOP:
-    ; Código que se va a estar ejecutando mientras no hayan interrupciones
-    ;CALL    MOSTRAR_VOLOR
+    ;Código que se va a estar ejecutando mientras no hayan interrupciones
     CALL    SET_DISPLAY		; Guardamos los valores a enviar en PORTC para mostrar valor en hex
     GOTO    LOOP	
 
@@ -163,6 +162,7 @@ DECENAS:
     MOVLW   60
     MOVWF   cont_decenas
 RETURN
+    
 CONFIG_RELOJ:
     BANKSEL OSCCON	    ; cambiamos a banco 01
     BSF	    OSCCON, 0	    ; SCS -> 1, Usamos reloj interno
@@ -233,8 +233,8 @@ CONFIG_IO:
     CLRF    PORTC		; Apagamos PORTC
     BCF	    PORTD, 0		; Apagamos RD0
     BCF	    PORTD, 1		; Apagamos RD1
-  ;  BCF	    PORTD, 2		; Apagamos RD2
-   ; BCF	    PORTD, 3		; Apagamos RD3
+    BCF	    PORTD, 2		; Apagamos RD2
+    BCF	    PORTD, 3		; Apagamos RD3
     
     CLRF    PORTA		; Apagamos PORTA
     CLRF    banderas		; Limpiamos GPR
@@ -260,65 +260,64 @@ SET_DISPLAY:
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display		; Guardamos en display
     
-    MOVF    decenas, W	; Movemos nibble alto a W
+    MOVF    valor, W	; Movemos nibble alto a W
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-    MOVWF   display1		; Guardamos en display+1
+    MOVWF   display1		; Guardamos en display1
  
     MOVF    decenas, W	; Movemos nibble alto a W
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-    MOVWF   display2		; Guardamos en display+1
+    MOVWF   display2		; Guardamos en display2
    
     
     MOVF    decenas, W	; Movemos nibble alto a W
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-    MOVWF   display3		; Guardamos en display+1
+    MOVWF   display3		; Guardamos en display3
     RETURN
 
 MOSTRAR_VOLOR:
    BTFSC    PORTD,0
    GOTO	    DISPLAY_0
+   
    BTFSC    PORTD,1
    GOTO	    DISPLAY_1
+  
    BTFSC    PORTD,2
    GOTO	    DISPLAY_2
+   
    BTFSC    PORTD,3
    GOTO	    DISPLAY_3
+   
     
     
-    DISPLAY_0:			
+    DISPLAY_0:
+	CLRF	PORTD
 	MOVF    display, W	; Movemos display a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
-	BCF	PORTD, 0	; Encendemos display de nibble bajo
-	BSF	PORTD,1
-	BCF	PORTD,2
-	BCF	PORTD,3
+	BSF	PORTD, 1	; Encendemos display de nibble bajo
+	
 	RETURN
+	
     DISPLAY_1:
-	MOVF    display+1, W	; Movemos display+1 a W
+	CLRF	PORTD
+	MOVF    display1, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
 	BSF	PORTD, 2	; Encendemos display de nibble alto
-	BCF	PORTD, 0	; Encendemos display de nibble alto
-	BCF	PORTD, 1	; Encendemos display de nibble alto
-	BCF	PORTD, 3	; Encendemos display de nibble alto
+
 	RETURN
     DISPLAY_2:
+	CLRF	PORTD
 	MOVF    display2, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
 	BSF	PORTD, 3	; Encendemos display de nibble alto
-	BCF	PORTD, 0	; Encendemos display de nibble alto
-	BCF	PORTD, 1	; Encendemos display de nibble alto
-	BCF	PORTD, 2	; Encendemos display de nibble alto
-	
+
 	RETURN
     DISPLAY_3:
+	CLRF	PORTD
 	MOVF    display3, W	; Movemos display+1 a W
 	MOVWF   PORTC		; Movemos Valor de tabla a PORTC
 	BSF	PORTD, 0	; Encendemos display de nibble alto
-	BCF	PORTD, 1
-	BCF	PORTD, 2
-	BCF	PORTD, 3
-    
-    RETURN
+	
+	RETURN
     
     
 ORG 200h
