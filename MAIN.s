@@ -91,6 +91,8 @@ ISR:
     CALL    INT_TMR1
     BTFSC   TMR2IF	    ; Interrupcion de TMR2?
     CALL    INT_TMR2
+    BTFSC   RBIF		; Fue interrupción del PORTB? No=0 Si=1
+    CALL    INT_PORTB		; Si -> Subrutina de interrupción de PORTB
  
     
 POP:
@@ -147,7 +149,7 @@ MAIN:
     BSF	    PORTD,0	    ; Predeterminado a encender el display 0 primero
     
 			    ;Precarga de los dos leds parapadeantes 1/2seg
-			    CLRF    modo
+
     MOVLW   2		    
     MOVWF   LED
     
@@ -165,23 +167,22 @@ LOOP:
     GOTO    RELOJ
     GOTO    FECHA
     GOTO    TEMPORIZADOR    
-    ;Código que se va a estar ejecutando mientras no hayan interrupciones
-;    CALL    SET_DISPLAY		
+				 ;Código que se va a estar ejecutando mientras no hayan interrupciones
+;   CALL    SET_DISPLAY		
     GOTO    LOOP	
-
-RETURN
+    RETURN
  
 RELOJ:
-    BSF	    PORTA,0
+    BSF	PORTA,0
 RETURN
     
     
 FECHA:
-    BSF	    PORTA,1
+    BSF	PORTA,1
 RETURN
     
 TEMPORIZADOR:
-    BSF	    PORTA,2
+    BSF	PORTA,2
 RETURN
     
     
@@ -245,7 +246,12 @@ CONFIG_IO:
     
     ;Multiplexado
     BANKSEL TRISC
+    BCF     OPTION_REG	,7	;Habilita las resistencias pullups
+    BSF	    WPUB	,0
+    BSF	    WPUB	,1
     CLRF    TRISC		; PORTC como salida
+   
+    
     ;PORTD
     BCF	    TRISD, 0		; RD0 como salida / display nibble alto
     BCF	    TRISD, 1		; RD1 como salida / display nibble bajo
@@ -253,11 +259,7 @@ CONFIG_IO:
     BCF	    TRISD, 3		
     BCF	    TRISD, 4
     
-    ;PORTB
-    BCF     OPTION_REG	,7	;Habilita las resistencias pullups
-    BSF	    WPUB	,0
-    BSF	    WPUB	,1
-    
+    ;PORTB 
     BSF	    TRISB, MODO		; RB3 como entrada
     BSF	    TRISB, UP		; RB0 como entrada
     BSF	    TRISB, DOWN		; RB1 como entrada
