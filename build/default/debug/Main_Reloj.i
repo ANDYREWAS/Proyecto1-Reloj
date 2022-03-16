@@ -2526,7 +2526,7 @@ resetVec:
 PSECT intVect, class=CODE, abs, delta=2
 ORG 04h ; posición 0004h para interrupciones
 ;------- VECTOR INTERRUPCIONES ----------
-    PUSH:
+PUSH:
     MOVWF W_TEMP ; Guardamos W
     SWAPF STATUS, W
     MOVWF STATUS_TEMP ; Guardamos STATUS
@@ -2545,19 +2545,19 @@ POP:
     MOVWF STATUS ; Recuperamos el valor de reg STATUS
     SWAPF W_TEMP, F
     SWAPF W_TEMP, W ; Recuperamos valor de W
-    RETFIE ; Regresamos a ciclo principal
+RETFIE ; Regresamos a ciclo principal
 
 
 INT_TMR0:
     RESET_TMR0 225 ; Reiniciamos TMR0 para 1ms
     CALL MOSTRAR_VOLOR ; Mostramos valor en hexadecimal en los displays
-    RETURN
+RETURN
 
 INT_TMR1:
     RESET_TMR1 0xE0, 0xC0 ; Reiniciamos TMR1 para 1000ms
     CALL RELOJ
 
-    RETURN
+RETURN
 
 INT_TMR2:
     BCF ((PIR1) and 07Fh), 1 ; Limpiamos bandera de interrupcion de TMR1
@@ -2566,13 +2566,13 @@ INT_TMR2:
     return
     CALL REINICIOLED
 
-    RETURN
+RETURN
 
 REINICIOLED:
     BCF PORTB,2
     MOVLW 2
     MOVWF LED
-    return
+RETURN
 
 ;ORG 0100h
 MAIN:
@@ -2586,7 +2586,7 @@ MAIN:
     BANKSEL PORTD ; Cambio a banco 00
     BSF PORTD,0 ; Predeterminado a encender el display 0 primero
 
-    ;Precarga de los dos leds parapadeantes 1/2seg
+       ;Precarga de los dos leds parapadeantes 1/2seg
 
     MOVLW 2
     MOVWF LED
@@ -2605,8 +2605,9 @@ RELOJ:
     MOVLW 60
     MOVWF segundosR
     INCF minutosR
-    RETURN
-# 179 "Main_Reloj.s"
+# 177 "Main_Reloj.s"
+RETURN
+
 CONFIG_RELOJ:
     BANKSEL OSCCON ; cambiamos a banco 01
     BSF OSCCON, 0 ; ((OSCCON) and 07Fh), 0 -> 1, Usamos reloj interno

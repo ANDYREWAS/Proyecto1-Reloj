@@ -1,14 +1,9 @@
-# 1 "Main_Reloj.s"
+# 1 "MAIN.s"
 # 1 "<built-in>" 1
-# 1 "Main_Reloj.s" 2
+# 1 "MAIN.s" 2
 ; Dispositivo: PIC16F887
 ; Autor: Andres Najera
 ; Compilador: pic-as (v2.35), MPLABX V6.00
-;
-; Programa:
-; TMR1 y contador en PORTA con incrementos cada 1000ms
-    ; TMR2 y contador en PORTB con incrementos cada 500ms
-; Hardware: LEDs en el PORTD, PORTA, PORTB
 ;
 ; Creado: 21 feb 2022
 ; Última modificación: 21 feb 2022
@@ -2482,7 +2477,13 @@ stk_offset SET 0
 auto_size SET 0
 ENDM
 # 7 "C:\\Program Files\\Microchip\\xc8\\v2.35\\pic\\include\\xc.inc" 2 3
-# 37 "Main_Reloj.s" 2
+# 32 "MAIN.s" 2
+ MODO EQU 1
+  UP EQU 0
+  DOWN EQU 2
+  EDIT EQU 3
+
+
 
 RESET_TMR0 MACRO TMR_VAR
     BANKSEL TMR0 ; cambiamos de banco
@@ -2505,6 +2506,7 @@ PSECT udata_shr ; Memoria compartida
 
 PSECT udata_bank0
     LED: DS 1
+    modo: DS 1
     ;Variables para la Hora
     display: DS 1 ;variables de los displays
     display1: DS 1
@@ -2526,7 +2528,7 @@ resetVec:
 PSECT intVect, class=CODE, abs, delta=2
 ORG 04h ; posición 0004h para interrupciones
 ;------- VECTOR INTERRUPCIONES ----------
-    PUSH:
+PUSH:
     MOVWF W_TEMP ; Guardamos W
     SWAPF STATUS, W
     MOVWF STATUS_TEMP ; Guardamos STATUS
@@ -2538,6 +2540,8 @@ ISR:
     CALL INT_TMR1
     BTFSC ((PIR1) and 07Fh), 1 ; Interrupcion de TMR2?
     CALL INT_TMR2
+    BTFSC ((INTCON) and 07Fh), 0 ; Fue interrupción del PORTB? No=0 Si=1
+    CALL INT_PORTB ; Si -> Subrutina de interrupción de PORTB
 
 
 POP:
@@ -2545,36 +2549,68 @@ POP:
     MOVWF STATUS ; Recuperamos el valor de reg STATUS
     SWAPF W_TEMP, F
     SWAPF W_TEMP, W ; Recuperamos valor de W
-    RETFIE ; Regresamos a ciclo principal
+RETFIE ; Regresamos a ciclo principal
 
-
+;_______________________INTERRUPCIONES_________________________________________
 INT_TMR0:
     RESET_TMR0 225 ; Reiniciamos TMR0 para 1ms
-    CALL MOSTRAR_VOLOR ; Mostramos valor en hexadecimal en los displays
-    RETURN
+; CALL MOSTRAR_VOLOR ; Mostramos valor en hexadecimal en los displays
+RETURN
 
 INT_TMR1:
     RESET_TMR1 0xE0, 0xC0 ; Reiniciamos TMR1 para 1000ms
-    CALL RELOJ
-
+    DECFSZ segundosR
     RETURN
+    MOVLW 60
+    MOVWF segundosR
+
+    INCF minutosR
+    MOVlW 60
+    SUBWF minutosR, 0 ;guardamos el resultado en W
+    BTFSS STATUS, 2 ;no regresamos si el resultado fue 0
+    RETURN
+    INCF horasR
+    CLRF minutosR
+
+    MOVLW 24
+    SUBWF horasR,0
+    BTFSS STATUS,2
+    INCF dia
+    CLRF horasR
+
+
+RETURN
 
 INT_TMR2:
     BCF ((PIR1) and 07Fh), 1 ; Limpiamos bandera de interrupcion de TMR1
-    BSF PORTB,2
+    BSF PORTE,2
     DECFSZ LED
     return
     CALL REINICIOLED
-
-    RETURN
+RETURN
 
 REINICIOLED:
-    BCF PORTB,2
+    BCF PORTE,2
     MOVLW 2
     MOVWF LED
-    return
+RETURN
 
-;ORG 0100h
+INT_PORTB:
+    BTFSC PORTB, MODO ; Si se presionó botón de cambio de modo
+    Goto $+7
+    INCF modo
+    ;comprobar
+    MOVLW 4
+    SUBWF modo,0
+    BTFSC STATUS,2
+    CLRF modo
+    ;movemos modo a W para luego sumarselo a PCLATH
+    BCF ((INTCON) and 07Fh), 0 ; Limpiamos bandera de interrupción
+RETURN
+
+
+;______________________________________________________________________________
+ORG 100h
 MAIN:
     CALL CONFIG_IO ; Configuración de I/O
     CALL CONFIG_RELOJ ; Configuración de Oscilador
@@ -2586,27 +2622,121 @@ MAIN:
     BANKSEL PORTD ; Cambio a banco 00
     BSF PORTD,0 ; Predeterminado a encender el display 0 primero
 
-    ;Precarga de los dos leds parapadeantes 1/2seg
-
+       ;Precarga de los dos leds parapadeantes 1/2seg
     MOVLW 2
     MOVWF LED
 
-    MOVLW 60
+    MOVLW 60 ;precarga segundos
     MOVWF segundosR
+
+
 
 LOOP:
-    ;Código que se va a estar ejecutando mientras no hayan interrupciones
-    CALL SET_DISPLAY
+    MOVF modo,0
+    MOVWF PORTA
+
+    CALL DIRECCIONAMIENTO ;Código que se va a estar ejecutando mientras no hayan interrupciones
+    CALL MULTIPLEXADO
     GOTO LOOP
+    RETURN
+
+
+
+ORG 400h
+DIRECCIONAMIENTO:
+    CLRF PCLATH ; Limpiamos registro PCLATH
+    BSF PCLATH, 2 ; Posicionamos el PC en dirección 06xxh
+    MOVF modo,0 ; Movemos el valor de la bandera modo a W
+    ANDLW 0x03 ; no saltar más del tamaño de la tabla
+    ADDWF PCL
+    GOTO RELOJ
+    GOTO FECHA
+    GOTO TEMPORIZADOR
+
+
+
+MULTIPLEXADO:
+    MOSTRAR_VALOR: ;Multiplexado
+ BTFSC PORTD,0
+ GOTO DISPLAY_0
+
+ BTFSC PORTD,1
+ GOTO DISPLAY_1
+
+ BTFSC PORTD,2
+ GOTO DISPLAY_2
+
+ BTFSC PORTD,3
+ GOTO DISPLAY_3
+
+
+
+ DISPLAY_0:
+     CLRF PORTD
+     MOVF display, W ; Movemos display a W
+     MOVWF PORTC ; Movemos Valor de tabla a PORTC
+     BSF PORTD, 1 ; Encendemos display de nibble bajo
+
+     RETURN
+
+ DISPLAY_1:
+     CLRF PORTD
+     MOVF display1, W ; Movemos display+1 a W
+     MOVWF PORTC ; Movemos Valor de tabla a PORTC
+     BSF PORTD, 2 ; Encendemos display de nibble alto
+
+     RETURN
+ DISPLAY_2:
+     CLRF PORTD
+     MOVF display2, W ; Movemos display+1 a W
+     MOVWF PORTC ; Movemos Valor de tabla a PORTC
+     BSF PORTD, 3 ; Encendemos display de nibble alto
+
+     RETURN
+ DISPLAY_3:
+     CLRF PORTD
+     MOVF display3, W ; Movemos display+1 a W
+     MOVWF PORTC ; Movemos Valor de tabla a PORTC
+     BSF PORTD, 0 ; Encendemos display de nibble alto
+
+     RETURN
+
+
+RETURN
 
 RELOJ:
-    DECFSZ segundosR ;Verificamos si llegamos a 0 segundos
-    RETURN
-    MOVLW 60
-    MOVWF segundosR
-    INCF minutosR
-    RETURN
-# 179 "Main_Reloj.s"
+    SET_DISPLAY: ;Dividir las variables en decenas y unidades. convertirlas en decimal.
+ MOVF segundosR, W
+ CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
+ MOVWF display ; Guardamos en display
+
+ MOVF minutosR, W
+ CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
+ MOVWF display1 ; Guardamos en display1
+
+ MOVF horasR, W
+ CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
+ MOVWF display2 ; Guardamos en display2
+
+
+ MOVF segundosR, W
+ CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
+ MOVWF display3 ; Guardamos en display3
+
+
+
+RETURN
+
+
+FECHA:
+
+RETURN
+
+TEMPORIZADOR:
+
+RETURN
+
+
 CONFIG_RELOJ:
     BANKSEL OSCCON ; cambiamos a banco 01
     BSF OSCCON, 0 ; ((OSCCON) and 07Fh), 0 -> 1, Usamos reloj interno
@@ -2661,29 +2791,50 @@ CONFIG_IO:
     CLRF ANSELH ; I/O digitales
     BANKSEL TRISD
     CLRF TRISA ; PORTA como salida
-    CLRF TRISB ; PORTB como salida
+    CLRF TRISE ; PORTB como salida
     BANKSEL PORTD
     CLRF PORTA ; Apagamos PORTA
 
     ;Multiplexado
     BANKSEL TRISC
+    BCF OPTION_REG ,7 ;Habilita las resistencias pullups
+    BSF WPUB ,0
+    BSF WPUB ,1
+    BSF WPUB ,2
+    BSF WPUB ,3
     CLRF TRISC ; PORTC como salida
+
+
+    ;PORTD
     BCF TRISD, 0 ; ((PORTD) and 07Fh), 0 como salida / display nibble alto
     BCF TRISD, 1 ; ((PORTD) and 07Fh), 1 como salida / display nibble bajo
     BCF TRISD, 2
     BCF TRISD, 3
     BCF TRISD, 4
+
+    ;PORTB
+    BSF TRISB, MODO ; ((PORTB) and 07Fh), 3 como entrada
+    BSF TRISB, UP ; ((PORTB) and 07Fh), 0 como entrada
+    BSF TRISB, DOWN ; ((PORTB) and 07Fh), 1 como entrada
+    BSF TRISB, EDIT ; ((PORTB) and 07Fh), 4 como entrada
+
     BANKSEL PORTC
     CLRF PORTC ; Apagamos PORTC
     BCF PORTD, 0 ; Apagamos ((PORTD) and 07Fh), 0
     BCF PORTD, 1 ; Apagamos ((PORTD) and 07Fh), 1
-    BCF PORTD, 2 ; Apagamos ((PORTD) and 07Fh), 2
+    BCF PORTD, 2 ; Apagamos ((PORTD) and 07Fh), 3
     BCF PORTD, 3 ; Apagamos ((PORTD) and 07Fh), 3
 
     CLRF PORTA ; Apagamos PORTA
-    RETURN
+RETURN
 
 CONFIG_INT:
+    BANKSEL IOCB
+    BSF ((IOCB) and 07Fh), 0 ; Habilitamos int. por cambio de estado en ((PORTB) and 07Fh), 0
+    BSF ((IOCB) and 07Fh), 1 ; Habilitamos int. por cambio de estado en ((PORTB) and 07Fh), 1
+    BSF ((IOCB) and 07Fh), 2 ; Habilitamos int. por cambio de estado en ((PORTB) and 07Fh), 2
+    BSF ((IOCB) and 07Fh), 3 ; Habilitamos int. por cambio de estado en ((PORTB) and 07Fh), 3
+
     BANKSEL PIE1 ; Cambiamos a banco 01
     BSF ((PIE1) and 07Fh), 0 ; Habilitamos interrupciones de TMR1
     BSF ((PIE1) and 07Fh), 1 ; Habilitamos interrupciones de TMR2
@@ -2694,73 +2845,10 @@ CONFIG_INT:
     BCF ((INTCON) and 07Fh), 2 ; Limpiamos bandera de int. de TMR0
     BCF ((PIR1) and 07Fh), 0 ; Limpiamos bandera de TMR1
     BCF ((PIR1) and 07Fh), 1 ; Limpiamos bandera de TMR2
-    RETURN
+    BSF ((INTCON) and 07Fh), 3
+    BCF ((INTCON) and 07Fh), 0 ; Limpiamos bandera de int. de PORTB
 
-
-
-SET_DISPLAY: ;Dividir las variables en decenas y unidades. convertirlas en decimal.
-    MOVF segundosR, W
-    CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
-    MOVWF display ; Guardamos en display
-
-    MOVF minutosR, W
-    CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
-    MOVWF display1 ; Guardamos en display1
-
-    MOVF horasR, W
-    CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
-    MOVWF display2 ; Guardamos en display2
-
-
-    MOVF segundosR, W
-    CALL TABLA_7SEG ; Buscamos valor a cargar en PORTC
-    MOVWF display3 ; Guardamos en display3
-    RETURN
-
-MOSTRAR_VOLOR: ;Multiplexado
-   BTFSC PORTD,0
-   GOTO DISPLAY_0
-
-   BTFSC PORTD,1
-   GOTO DISPLAY_1
-
-   BTFSC PORTD,2
-   GOTO DISPLAY_2
-
-   BTFSC PORTD,3
-   GOTO DISPLAY_3
-
-
-
-    DISPLAY_0:
- CLRF PORTD
- MOVF display, W ; Movemos display a W
- MOVWF PORTC ; Movemos Valor de tabla a PORTC
- BSF PORTD, 1 ; Encendemos display de nibble bajo
-
- RETURN
-
-    DISPLAY_1:
- CLRF PORTD
- MOVF display1, W ; Movemos display+1 a W
- MOVWF PORTC ; Movemos Valor de tabla a PORTC
- BSF PORTD, 2 ; Encendemos display de nibble alto
-
- RETURN
-    DISPLAY_2:
- CLRF PORTD
- MOVF display2, W ; Movemos display+1 a W
- MOVWF PORTC ; Movemos Valor de tabla a PORTC
- BSF PORTD, 3 ; Encendemos display de nibble alto
-
- RETURN
-    DISPLAY_3:
- CLRF PORTD
- MOVF display3, W ; Movemos display+1 a W
- MOVWF PORTC ; Movemos Valor de tabla a PORTC
- BSF PORTD, 0 ; Encendemos display de nibble alto
-
- RETURN
+RETURN
 
 
 ORG 300h

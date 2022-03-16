@@ -53,17 +53,19 @@ RESET_TMR1 MACRO TMR1_H, TMR1_L
 PSECT udata_shr		    ; Memoria compartida
     W_TEMP:		DS 1
     STATUS_TEMP:	DS 1
+
+PSECT udata_bank0
     LED:		DS 1
     ;Variables para la Hora
-    valor:		DS 1	; Contiene valor a mostrar en los displays de 7-seg
-    banderas:		DS 1	; Indica que display hay que encender
     display:		DS 1	;variables de los displays
     display1:		DS 1
     display2:		DS 1
     display3:		DS 1
-    decenas:		DS 1	;Variables para la hora
-    segundos:		DS 1
-    cont_decenas:	DS 1
+    segundosR:		DS 1	;Variables de la hora
+    minutosR:		DS 1
+    horasR:		DS 1
+    dia:		DS 1	;Variables fecha
+    mes:		DS 1
     
 PSECT resVect, class=CODE, abs, delta=2
 ORG 00h			    ; posición 0000h para el reset
@@ -104,9 +106,8 @@ INT_TMR0:
     
 INT_TMR1:
     RESET_TMR1 0xE0, 0xC0   ; Reiniciamos TMR1 para 1000ms
-    INCF    valor	    ; Incremento en variable segundos
-    CALL    SEGUNDOS
-    CALL    DECENAS
+    CALL    RELOJ
+
     RETURN
 
 INT_TMR2:
@@ -120,10 +121,11 @@ INT_TMR2:
     
 REINICIOLED:
     BCF	    PORTB,2
-    MOVLW    2
-    MOVWF    LED
+    MOVLW   2
+    MOVWF   LED
     return
-    
+
+;ORG 0100h    
 MAIN:
     CALL    CONFIG_IO	    ; Configuración de I/O
     CALL    CONFIG_RELOJ    ; Configuración de Oscilador
@@ -132,37 +134,48 @@ MAIN:
     CALL    CONFIG_TMR2	    ; Configuración de TMR2
     CALL    CONFIG_INT	    ; Configuración de interrupciones
     CLRF    PORTB
-    MOVLW   2		    ;Precargamos para los led que parapadean cada 1/2 seg
-    MOVWF   LED
-    MOVLW   10		    ;Precargamos para las unidades
-    MOVWF   segundos
-    MOVLW   60		    ;precargamos para las decenas
-    MOVWF   cont_decenas
     BANKSEL PORTD	    ; Cambio a banco 00
-    BSF	    PORTD,0
+    BSF	    PORTD,0	    ; Predeterminado a encender el display 0 primero
+    
+    ;Precarga de los dos leds parapadeantes 1/2seg
+   
+    MOVLW   2		    
+    MOVWF   LED
+    
+    MOVLW   60
+    MOVWF   segundosR
     
 LOOP:
     ;Código que se va a estar ejecutando mientras no hayan interrupciones
-    CALL    SET_DISPLAY		; Guardamos los valores a enviar en PORTC para mostrar valor en hex
+    CALL    SET_DISPLAY		
     GOTO    LOOP	
 
-SEGUNDOS:
-    DECFSZ  segundos
+RELOJ:
+    DECFSZ  segundosR	    ;Verificamos si llegamos a 0 segundos
     RETURN
-    CLRF    valor
-    MOVLW   10
-    MOVWF   segundos
-    INCF    decenas
-RETURN
-  
-DECENAS:
-    DECFSZ  cont_decenas
-    RETURN
-    CLRF    decenas
     MOVLW   60
-    MOVWF   cont_decenas
-RETURN
+    MOVWF   segundosR
+    INCF    minutosR
+    RETURN
+    /*minutos
+    MOVLW   60
+    ANDWF   minutosR
     
+    BTFSS   STATUS,2
+    RETURN
+    CLRF    minutosR
+    INCF    horasR
+    ;horas
+    MOVLW   24
+    ANDWF   horasR
+    
+    BTFSS   STATUS,2
+    RETURN
+    CLRF    horasR
+    INCF    dia
+    
+RETURN
+    */
 CONFIG_RELOJ:
     BANKSEL OSCCON	    ; cambiamos a banco 01
     BSF	    OSCCON, 0	    ; SCS -> 1, Usamos reloj interno
@@ -237,7 +250,6 @@ CONFIG_IO:
     BCF	    PORTD, 3		; Apagamos RD3
     
     CLRF    PORTA		; Apagamos PORTA
-    CLRF    banderas		; Limpiamos GPR
     RETURN
     
 CONFIG_INT:
@@ -255,26 +267,26 @@ CONFIG_INT:
     
 
     
-SET_DISPLAY:
-    MOVF    valor, W		; Movemos nibble bajo a W
+SET_DISPLAY:			;Dividir las variables en decenas y unidades. convertirlas en decimal.
+    MOVF    segundosR, W	
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display		; Guardamos en display
     
-    MOVF    valor, W	; Movemos nibble alto a W
+    MOVF    minutosR, W	
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display1		; Guardamos en display1
  
-    MOVF    decenas, W	; Movemos nibble alto a W
+    MOVF    horasR, W	
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display2		; Guardamos en display2
    
     
-    MOVF    decenas, W	; Movemos nibble alto a W
+    MOVF    segundosR, W	
     CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
     MOVWF   display3		; Guardamos en display3
     RETURN
 
-MOSTRAR_VOLOR:
+MOSTRAR_VOLOR:			;Multiplexado
    BTFSC    PORTD,0
    GOTO	    DISPLAY_0
    
@@ -320,7 +332,7 @@ MOSTRAR_VOLOR:
 	RETURN
     
     
-ORG 200h
+ORG 300h
 TABLA_7SEG:
     CLRF    PCLATH		; Limpiamos registro PCLATH
     BSF	    PCLATH, 1		; Posicionamos el PC en dirección 02xxh

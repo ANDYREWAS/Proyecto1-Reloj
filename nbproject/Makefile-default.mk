@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Main_Reloj.s borrar.s
+SOURCEFILES_QUOTED_IF_SPACED=MAIN.s
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Main_Reloj.o ${OBJECTDIR}/borrar.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Main_Reloj.o.d ${OBJECTDIR}/borrar.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/MAIN.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/MAIN.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Main_Reloj.o ${OBJECTDIR}/borrar.o
+OBJECTFILES=${OBJECTDIR}/MAIN.o
 
 # Source Files
-SOURCEFILES=Main_Reloj.s borrar.s
+SOURCEFILES=MAIN.s
 
 
 
@@ -95,37 +95,21 @@ FINAL_IMAGE_NAME_MINUS_EXTENSION=${DISTDIR}/Proyecto__1_-_Reloj.X.${IMAGE_TYPE}
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: pic-as-assembler
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/Main_Reloj.o: Main_Reloj.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/MAIN.o: MAIN.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Main_Reloj.o 
+	@${RM} ${OBJECTDIR}/MAIN.o 
 	${MP_AS} -mcpu=PIC16F887 -c \
-	-o ${OBJECTDIR}/Main_Reloj.o \
-	Main_Reloj.s \
-	 -D__DEBUG=1  -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/borrar.o: borrar.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/borrar.o 
-	${MP_AS} -mcpu=PIC16F887 -c \
-	-o ${OBJECTDIR}/borrar.o \
-	borrar.s \
+	-o ${OBJECTDIR}/MAIN.o \
+	MAIN.s \
 	 -D__DEBUG=1  -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 else
-${OBJECTDIR}/Main_Reloj.o: Main_Reloj.s  nbproject/Makefile-${CND_CONF}.mk 
+${OBJECTDIR}/MAIN.o: MAIN.s  nbproject/Makefile-${CND_CONF}.mk 
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/Main_Reloj.o 
+	@${RM} ${OBJECTDIR}/MAIN.o 
 	${MP_AS} -mcpu=PIC16F887 -c \
-	-o ${OBJECTDIR}/Main_Reloj.o \
-	Main_Reloj.s \
-	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
-	
-${OBJECTDIR}/borrar.o: borrar.s  nbproject/Makefile-${CND_CONF}.mk 
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/borrar.o 
-	${MP_AS} -mcpu=PIC16F887 -c \
-	-o ${OBJECTDIR}/borrar.o \
-	borrar.s \
+	-o ${OBJECTDIR}/MAIN.o \
+	MAIN.s \
 	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -fmax-errors=20 -mwarn=0 -xassembler-with-cpp
 	
 endif

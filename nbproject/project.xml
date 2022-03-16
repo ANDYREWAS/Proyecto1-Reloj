@@ -3,7 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>Proyecto #1 - Reloj</name>
+            <name>Proyecto1</name>
             <creation-uuid>18bff464-10ca-432b-a7e0-bcbf5127b233</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions/>
