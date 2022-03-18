@@ -245,25 +245,36 @@ DIRECCIONAMIENTO:
 
     RELOJ:
 	
+	BCF	PORTE,0		;apagamos el led de config
+	;BTFSC	PORTB,EDIT	;CONFIGURACION
+	;GOTO	config_minR
+	
 	;SET display0 - unidades de minuto
-	MOVF	minutosR,0
+	MOVF	minutosR,0	;movemos el contador de minutos a temp1
 	MOVWF	temp1
-	MOVLW	0x0F
+	MOVLW	0x0F		;Obtenemos el nibble menos significativo
 	ANDWF	temp1,0
-	MOVWF	MINUTOSr	
-	CALL	TABLA_7SEG
-	MOVWF	display
+	MOVWF	MINUTOSr	;Lo guardamos en la variable ya separada (ds=2)
+	CALL	TABLA_7SEG	;Traducimos
+	MOVWF	display		;Mostramos 
 	
 	;SET display1 - decenas de minuto
-	MOVF	minutosR,0
-	MOVWF	temp1
+	MOVF	minutosR,0	
+	MOVWF	temp1		;volvemos a meter el valor neto de minutos en temp1
 	
 	MOVLW	0xF0
-	ANDWF	temp1,0
+	ANDWF	temp1,0		;Obtenemos el nibble más significativo 
 	MOVWF	MINUTOSr+1
-	SWAPF   MINUTOSr+1, F
-	CALL	TABLA_7SEG
-	MOVWF	display3
+	SWAPF   MINUTOSr+1, F	;lo guardamos en la otra parte de la variable y le hacemos un swap para poder mostrarlo
+	
+	;Que no llegue a más de 60 mins
+	MOVLW	6
+	SUBWF	MINUTOSr+1,0
+	BTFSS	STATUS,2
+	CLRF	MINUTOSr+1
+	
+	CALL	TABLA_7SEG	;traducimos
+	MOVWF	display3	;mostramos
 	
 	
 	;SET display2 - unidades de hora
@@ -290,6 +301,22 @@ DIRECCIONAMIENTO:
 	
 	
     RETURN
+    
+    ;______________CONFIGURACIONES____________________
+    /*
+    config_minR:		;Cambiamos las unidades de minuto
+	BSF	PORTE,0		;indicador de que estamos en config
+	
+	BTFSC	PORTE,EDIT
+	GOTO	RELOJ
+	
+	BTFSS	PORTB,UP
+	INCF	minutosR
+	
+	BTFSS	PORTB,DOWN
+	DECF	minutosR
+    */
+   
     
   	      
     FECHA:
