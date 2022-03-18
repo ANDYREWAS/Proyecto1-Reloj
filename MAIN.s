@@ -63,11 +63,17 @@ PSECT udata_bank0
     display1:		DS 1
     display2:		DS 1
     display3:		DS 1
-    segundosR:		DS 1	;Variables de la hora
-    minutosR:		DS 1
-    horasR:		DS 1
-    dia:		DS 1	;Variables fecha
-    mes:		DS 1
+    segundosR:		DS 1	;Variables de la hora que sirven de contadores
+    minutosR:		DS 2
+    horasR:		DS 2
+    MINUTOSr:		DS 2	;Variables que separan el valor de los contadores en unidades y decenas
+    HORASr:		DS 2
+    
+    temp1:		DS 1
+    temp2:		DS 1
+    
+    dia:		DS 2	;Variables fecha
+    mes:		DS 2
     
 PSECT resVect, class=CODE, abs, delta=2
 ORG 00h			    ; posición 0000h para el reset
@@ -91,8 +97,8 @@ ISR:
     CALL    INT_TMR1
     BTFSC   TMR2IF	    ; Interrupcion de TMR2?
     CALL    INT_TMR2
-    BTFSC   RBIF		; Fue interrupción del PORTB? No=0 Si=1
-    CALL    INT_PORTB		; Si -> Subrutina de interrupción de PORTB
+    BTFSC   RBIF	    ; Fue interrupción del PORTB? No=0 Si=1
+    CALL    INT_PORTB	    ; Si -> Subrutina de interrupción de PORTB
  
     
 POP:
@@ -105,7 +111,7 @@ RETFIE			    ; Regresamos a ciclo principal
 ;_______________________INTERRUPCIONES_________________________________________    
 INT_TMR0:
     RESET_TMR0 225	    ; Reiniciamos TMR0 para 1ms
-;    CALL    MOSTRAR_VOLOR   ; Mostramos valor en hexadecimal en los displays
+
 RETURN
     
 INT_TMR1:
@@ -116,7 +122,7 @@ INT_TMR1:
     MOVWF   segundosR
     
     INCF    minutosR
-    MOVlW   60
+    MOVLW   60
     SUBWF   minutosR, 0	    ;guardamos el resultado en W
     BTFSS   STATUS, 2	    ;no regresamos si el resultado fue 0
     RETURN
@@ -148,7 +154,7 @@ RETURN
 
 INT_PORTB:
     BTFSC   PORTB, MODO	    ; Si se presionó botón de cambio de modo    
-    Goto    $+7
+    Goto    $+6
     INCF    modo
     ;comprobar
     MOVLW   4
@@ -161,6 +167,7 @@ RETURN
     
     
 ;______________________________________________________________________________
+PSECT code, delta = 2, abs
 ORG 100h    
 MAIN:
     CALL    CONFIG_IO	    ; Configuración de I/O
@@ -169,7 +176,8 @@ MAIN:
     CALL    CONFIG_TMR1	    ; Configuración de TMR1
     CALL    CONFIG_TMR2	    ; Configuración de TMR2
     CALL    CONFIG_INT	    ; Configuración de interrupciones
-    CLRF    PORTB
+    ;CALL    CLEARVARS
+    CLRF    PORTA
     BANKSEL PORTD	    ; Cambio a banco 00
     BSF	    PORTD,0	    ; Predeterminado a encender el display 0 primero
     
@@ -179,9 +187,36 @@ MAIN:
     
     MOVLW   60		    ;precarga segundos
     MOVWF   segundosR
+   
+   MOVLW    6
+   MOVWF    horasR
+   
+   MOVLW    1
+   MOVWF    dia
+   MOVLW    1
+   MOVWF    mes
     
-
-
+/*    
+CLEARVARS:
+    CLRF LED		
+    CLRF modo		
+    CLRF display		
+    CLRF display1		
+    CLRF display2		
+    CLRF display3		
+    CLRF segundosR		
+    CLRF minutosR		
+    CLRF horasR	
+    CLRF u_min		
+    CLRF d_min		
+    CLRF u_hora		
+    CLRF d_hora		   
+    CLRF temp1		
+    CLRF temp2		
+    CLRF dia		
+    CLRF mes		
+RETURN 
+  */  
 LOOP:
     MOVF    modo,0
     MOVWF   PORTA
@@ -189,22 +224,115 @@ LOOP:
     CALL    DIRECCIONAMIENTO					;Código que se va a estar ejecutando mientras no hayan interrupciones
     CALL    MULTIPLEXADO
     GOTO    LOOP	
-    RETURN
+
  
     
     
-ORG 400h   
+   
 DIRECCIONAMIENTO:
     CLRF    PCLATH			; Limpiamos registro PCLATH		
-    BSF	    PCLATH, 2			; Posicionamos el PC en dirección 06xxh
+    BSF	    PCLATH, 0			; Posicionamos el PC en dirección 04xxh
     MOVF    modo,0	    ; Movemos el valor de la bandera modo a W 
     ANDLW   0x03			; no saltar más del tamaño de la tabla
     ADDWF   PCL
     GOTO    RELOJ
     GOTO    FECHA
     GOTO    TEMPORIZADOR    
- 
+    GOTO    ALARMA
+
+   ;codificacion VCD 
+   ;variable de 8 bits	    ¡¡REPARAR!! despues de llegar a 9 en las unidades, todo para no se muestra ninguna decena
+
+    RELOJ:
+	
+	;SET display0 - unidades de minuto
+	MOVF	minutosR,0
+	MOVWF	temp1
+	MOVLW	0x0F
+	ANDWF	temp1,0
+	MOVWF	MINUTOSr	
+	CALL	TABLA_7SEG
+	MOVWF	display
+	
+	;SET display1 - decenas de minuto
+	MOVF	minutosR,0
+	MOVWF	temp1
+	
+	MOVLW	0xF0
+	ANDWF	temp1,0
+	MOVWF	MINUTOSr+1
+	SWAPF   MINUTOSr+1, F
+	CALL	TABLA_7SEG
+	MOVWF	display3
+	
+	
+	;SET display2 - unidades de hora
+	MOVF	horasR,0
+	MOVWF	temp1
+	
+	MOVLW	0x0F
+	ANDWF	temp1,0
+	MOVWF	HORASr
+	CALL	TABLA_7SEG
+	MOVWF	display1
+	
+	
+	;SET display3 - decenas de hora
+	MOVF	horasR,0
+	MOVWF	temp1
+	
+	MOVLW	0xF0
+	ANDWF	temp1,0
+	MOVWF	HORASr+1
+	SWAPF   HORASr+1, F
+	CALL	TABLA_7SEG
+	MOVWF	display2
+	
+	
+    RETURN
     
+  	      
+    FECHA:
+	;SET display0 - unidades dia
+	MOVF	mes,0		;movemos el mes en el que estamos a W
+    	CALL	TABLA_FECHA	;La tabla regresa la cantidad de días que tiene el mes a la bandera de dias
+	MOVWF	dia		;Guardamos la cantidad de días que tiene el mes en dia
+	MOVF	dia,0		;Movemos dia a W
+	MOVWF	temp1		;Guardamos dia en temp1
+	MOVLW	0x0F		;obtenemos el nibble menos significativo en w
+	ANDWF	temp1,0		
+	MOVWF	dia		;movemos 
+	MOVF	dia,0
+	CALL	TABLA_7SEG
+	MOVWF	display
+	
+	
+	
+	MOVF	dia,0		;Movemos dia a W
+	MOVWF	temp1		;Guardamos dia en temp1
+	MOVLW	0xF0		;obtenemos el nibble menos significativo en w
+	ANDWF	temp1,0		
+	MOVWF	dia+1		;movemos 
+	SWAPF	dia+1, F
+	CALL	TABLA_7SEG
+	MOVWF	display
+	
+	
+	;SET display0 - unidades mes
+	MOVF	mes,0	
+	CALL	TABLA_7SEG
+	MOVWF	display1
+	
+
+    RETURN
+
+    TEMPORIZADOR:
+
+    RETURN
+
+    ALARMA:
+
+    RETURN
 
 MULTIPLEXADO:
     MOSTRAR_VALOR:			;Multiplexado
@@ -251,42 +379,7 @@ MULTIPLEXADO:
 	    BSF	    PORTD, 0		; Encendemos display de nibble alto
 
 	    RETURN
-    
-    
-RETURN
- 
-RELOJ:
-    SET_DISPLAY:			;Dividir las variables en decenas y unidades. convertirlas en decimal.
-	MOVF    segundosR, W	
-	CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-	MOVWF   display			; Guardamos en display
-
-	MOVF    minutosR, W	
-	CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-	MOVWF   display1		; Guardamos en display1
-
-	MOVF    horasR, W	
-	CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-	MOVWF   display2		; Guardamos en display2
-
-
-	MOVF    segundosR, W	
-	CALL    TABLA_7SEG		; Buscamos valor a cargar en PORTC
-	MOVWF   display3		; Guardamos en display3
-  
-
-    
-RETURN
-    
-    
-FECHA:
-    
-RETURN
-    
-TEMPORIZADOR:
-    
-RETURN
-    
+        
     
 CONFIG_RELOJ:
     BANKSEL OSCCON	    ; cambiamos a banco 01
@@ -390,6 +483,7 @@ CONFIG_INT:
     BSF	    TMR1IE	    ; Habilitamos interrupciones de TMR1
     BSF	    TMR2IE	    ; Habilitamos interrupciones de TMR2
     BANKSEL INTCON	    ; Cambiamos a banco 00
+    BCF	    INTF    
     BSF	    PEIE	    ; Habilitamos interrupciones de perifericos
     BSF	    GIE		    ; Habilitamos interrupciones
     BSF	    T0IE	    ; Habilitamos interrupcion TMR0
@@ -406,6 +500,7 @@ ORG 300h
 TABLA_7SEG:
     CLRF    PCLATH		; Limpiamos registro PCLATH
     BSF	    PCLATH, 1		; Posicionamos el PC en dirección 02xxh
+    BSF	    PCLATH, 0		; Posicionamos el PC en dirección 02xxh
     ANDLW   0x0F		; no saltar más del tamaño de la tabla
     ADDWF   PCL
     RETLW   00111111B	;0
@@ -418,6 +513,27 @@ TABLA_7SEG:
     RETLW   00000111B	;7
     RETLW   01111111B	;8
     RETLW   01101111B	;9
+    
+    
+TABLA_FECHA:
+    CLRF    PCLATH		; Limpiamos registro PCLATH
+    BSF	    PCLATH, 1		; Posicionamos el PC en dirección 02xxh
+    BSF	    PCLATH, 0		; Posicionamos el PC en dirección 02xxh
+    ANDLW   0x0F		; no saltar más del tamaño de la tabla
+    ADDWF   PCL
+    RETLW   0	;0
+    RETLW   31	;1  ENERO
+    RETLW   28	;2  FEBRERO
+    RETLW   31	;3  MARZO
+    RETLW   30	;4  ABRIL
+    RETLW   31	;5  MAYO
+    RETLW   30	;6  JUNIO
+    RETLW   31	;7  JULIO
+    RETLW   31	;8  AGOSTO
+    RETLW   30	;9  SEPTIEMBRE
+    RETLW   31	;10 OCTUBRE
+    RETLW   30	;11 NOVIEMBRE
+    RETLW   31	;12 DICIEMBRE
 
 
 
