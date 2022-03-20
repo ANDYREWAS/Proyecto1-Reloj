@@ -76,7 +76,6 @@ PSECT udata_bank0
     
     dia:		DS 1	;Variables fecha
     mes:		DS 1
-    config_select:	DS 1
     
 PSECT resVect, class=CODE, abs, delta=2
 ORG 00h			    ; posición 0000h para el reset
@@ -167,10 +166,6 @@ INT_PORTB:
     BTFSC   STATUS,2
     CLRF    modo
     ;movemos modo a W para luego sumarselo a PCLATH
-    
-    BTFSC   PORTB, EDIT
-    CALL    CONFIG_SELECT
-    
     BCF	    RBIF	    ; Limpiamos bandera de interrupción  
 RETURN
     
@@ -252,10 +247,6 @@ DIRECCIONAMIENTO:
    
 
     RELOJ:
-	CLRF	config_select
-	BSF	config_select,0
-	
-    
 	CALL	DECENAS_M_R
 	;SET display0 - unidades de minuto
 	MOVF	u_min,0
@@ -278,68 +269,51 @@ DIRECCIONAMIENTO:
 	MOVF	d_hora,0
 	CALL	TABLA_7SEG
 	MOVWF	display2
-
-	DECENAS_M_R:    
-	    MOVF	minutosR,0		;movemos minutos a W
-	    MOVWF	temp
-
-	    MOVLW	10
-	    SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
-	    BTFSS	STATUS,0		;revisamos el Carry
-	    GOTO    UNIDADES_M_R
-	    INCF	d_min
-	    GOTO	$-5
-
-
-	UNIDADES_M_R:
-	    MOVLW	10
-	    ADDWF	temp
-	    MOVF	temp,0
-	    MOVWF	u_min	
-	RETURN
-
-	DECENAS_H_R:    
-	    MOVF	horasR,0		;movemos minutos a W
-	    MOVWF	temp
-
-	    MOVLW	10
-	    SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
-	    BTFSS	STATUS,0		;revisamos el Carry
-	    GOTO    UNIDADES_H_R
-	    INCF	d_hora
-	    GOTO	$-5
-
-
-	UNIDADES_H_R:
-	    MOVLW	10
-	    ADDWF	temp
-	    MOVF	temp,0
-	    MOVWF	u_hora	
-	RETURN
 	
-	;___CONFIGURACION___
+	
+    RETURN
+    
+    DECENAS_M_R:    
+	MOVF	minutosR,0		;movemos minutos a W
+	MOVWF	temp
+	
+	MOVLW	10
+	SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
+	BTFSS	STATUS,0		;revisamos el Carry
+	GOTO    UNIDADES_M_R
+	INCF	d_min
+	GOTO	$-5
+    
+	
+    UNIDADES_M_R:
+	MOVLW	10
+	ADDWF	temp
+	MOVF	temp,0
+	MOVWF	u_min	
+    RETURN
 
-	configmR:
-	    BTFSC	PORTD,UP
-	    INCF	minutosR
-	    BTFSC	PORTD,DOWN
-	    DECF	minutosR
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	confighR
-
-	confighR:
-	    BTFSC	PORTD,UP
-	    INCF	horasR
-	    BTFSC	PORTD,DOWN
-	    DECF	horasR
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	RELOJ
+DECENAS_H_R:    
+	MOVF	horasR,0		;movemos minutos a W
+	MOVWF	temp
+	
+	MOVLW	10
+	SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
+	BTFSS	STATUS,0		;revisamos el Carry
+	GOTO    UNIDADES_H_R
+	INCF	d_hora
+	GOTO	$-5
+    
+	
+    UNIDADES_H_R:
+	MOVLW	10
+	ADDWF	temp
+	MOVF	temp,0
+	MOVWF	u_hora	
+    RETURN
+	    
     
     FECHA:
-	CLRF	config_select
-	BSF	config_select,1
+
 	
 	;SET display0 - unidades mes
 	MOVF	mes,0	
@@ -351,49 +325,17 @@ DIRECCIONAMIENTO:
 	CALL	TABLA_7SEG
 	MOVWF	display
 	
-	;___CONFIGURACION___
-
-	configD:
-	    BTFSC	PORTD,UP
-	    INCF	dia
-	    BTFSC	PORTD,DOWN
-	    DECF	dia
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	confighM
-
-	confighM:
-	    BTFSC	PORTD,UP
-	    INCF	mes
-	    BTFSC	PORTD,DOWN
-	    DECF	mes
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	FECHA
-	
 
     RETURN
 
     TEMPORIZADOR:
-	CLRF	config_select
-	BSF	config_select,2
 
-	
     RETURN
 
     ALARMA:
 
     RETURN
 
-    
-CONFIG_SELECT:
-	BTFSC	config_select,0
-	GOTO	configmR
-	
-	BTFSC	config_select,1
-	GOTO	configD
-	
-    
 MULTIPLEXADO:
     MOSTRAR_VALOR:			;Multiplexado
 	BTFSC    PORTD,0
