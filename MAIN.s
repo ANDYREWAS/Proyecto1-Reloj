@@ -47,6 +47,25 @@ RESET_TMR1 MACRO TMR1_H, TMR1_L
     BCF	    TMR1IF	    ; Limpiamos bandera de int. TMR1
     ENDM    
     
+WDIVL	MACRO divisor  
+						    
+	MOVWF	temp+0   
+	CLRF	temp+1 
+	INCF	temp+1   ;ver cuantas veces se a restado
+	
+	MOVLW	divisor  
+	SUBWF	temp, f	
+	BTFSC   STATUS,0    
+	GOTO	$-4   
+	
+	MOVLW	divisor	    
+	ADDWF	temp, W	    
+	MOVWF	residuo	    
+	DECF	temp+1,W   
+	MOVWF	cociente   
+	
+	ENDM
+    
 PSECT udata_shr		    ; Memoria compartida
     W_TEMP:		DS 1
     STATUS_TEMP:	DS 1
@@ -67,7 +86,7 @@ PSECT udata_bank0
     u_hora:		DS 1
     d_hora:		DS 1
     
-    temp:		DS 1
+    temp:		DS 2	;Variables Macro restas
     cociente:		DS 1
     residuo:		DS 1
     
@@ -192,10 +211,10 @@ MAIN:
     MOVLW   60		    ;precarga segundos
     MOVWF   segundosR
     
-    MOVLW   6
+    MOVLW   23
     MOVWF   horasR
     
-    MOVLW   9
+    MOVLW   59
     MOVWF   minutosR
     
     MOVLW   1
@@ -251,7 +270,7 @@ DIRECCIONAMIENTO:
 
     RELOJ:
     
-	CALL	DECENAS_M_R
+	CALL	SPLIT_M_R
 	;SET display0 - unidades de minuto
 	MOVF	u_min,0
 	CALL	TABLA_7SEG
@@ -263,7 +282,7 @@ DIRECCIONAMIENTO:
 	MOVWF	display3
 	
 	
-	CALL	DECENAS_H_R
+	CALL	SPLIT_H_R
 	;SET display0 - unidades de hora
 	MOVF	u_hora,0
 	CALL	TABLA_7SEG
@@ -274,44 +293,53 @@ DIRECCIONAMIENTO:
 	CALL	TABLA_7SEG
 	MOVWF	display2
 
-	DECENAS_M_R:    
-	    MOVF	minutosR,0		;movemos minutos a W
-	    MOVWF	temp
-
-	    MOVLW	10
-	    SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
-	    BTFSS	STATUS,0		;revisamos el Carry
-	    GOTO	UNIDADES_M_R		;ERROR
-	    INCF	d_min
-	    GOTO	$-5
-
-
-	UNIDADES_M_R:
-	    MOVLW	10
-	    ADDWF	temp
-	    MOVF	temp,0
-	    MOVWF	u_min	
-	RETURN
-
-	DECENAS_H_R:    
-	    MOVF	horasR,0		;movemos minutos a W
-	    MOVWF	temp
-
-	    MOVLW	10
-	    SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
-	    BTFSS	STATUS,0		;revisamos el Carry
-	    GOTO    UNIDADES_H_R
-	    INCF	d_hora
-	    GOTO	$-5
-
-
-	UNIDADES_H_R:
-	    MOVLW	10
-	    ADDWF	temp
-	    MOVF	temp,0
-	    MOVWF	u_hora	
-	RETURN
+	SPLIT_M_R:    
+	    MOVF    minutosR, W ;
     
+	    WDIVL   196		    
+	    MOVF    cociente, W
+	    MOVWF   d_min	    
+	    MOVF    residuo, W
+	    MOVWF   u_min
+
+	    WDIVL   60		    
+	    MOVF    cociente, W
+	    MOVWF   d_min	   
+	    MOVF    residuo, W
+	    MOVWF   u_min
+
+	    WDIVL   10		     
+	    MOVF    cociente, W
+	    MOVWF   d_min	     
+	    MOVF    residuo, W
+	    MOVWF   u_min
+	RETURN
+	    
+
+
+	SPLIT_H_R:    
+	    MOVF    horasR, W ;
+    
+	    WDIVL   232	    
+	    MOVF    cociente, W
+	    MOVWF   d_hora	    
+	    MOVF    residuo, W
+	    MOVWF   u_hora
+
+	    WDIVL   24		    
+	    MOVF    cociente, W
+	    MOVWF   d_hora	   
+	    MOVF    residuo, W
+	    MOVWF   u_hora
+
+	    WDIVL   10		     
+	    MOVF    cociente, W
+	    MOVWF   d_hora	     
+	    MOVF    residuo, W
+	    MOVWF   u_hora
+	   	
+	RETURN
+   
     FECHA:
 
 	;SET display0 - unidades mes
