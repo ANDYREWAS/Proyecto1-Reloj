@@ -361,7 +361,9 @@ RETURN
     RELOJ:
     CLRF    PORTA
     BSF	    PORTA,0
-    
+    /*BTFSS   PORTB,EDIT
+    GOTO    SET_RELOJ
+    */
 	CALL	SPLIT_M_R
 	;SET display0 - unidades de minuto
 	MOVF	u_min,0
@@ -419,11 +421,35 @@ RETURN
 	    MOVWF   u_hora
 	   	
 	RETURN
-   
+	/*
+	SET_RELOJ:
+	    BTFSS   PORTB,UP
+	    INCF    minutosR
+	    BTFSS   PORTB,DOWN
+	    DECF    minutosR
+	    
+	    BTFSS   PORTB,EDIT
+	    GOTO    SET_RELOJ2
+	    GOTO    $-6
+	    
+	    SET_RELOJ2:
+		BTFSS   PORTB,UP
+		INCF    horasR
+		BTFSS   PORTB,DOWN
+		DECF    horasR
+		
+		BTFSS   PORTB,EDIT
+		GOTO    RELOJ
+		GOTO    $-6
+	    
+   */
     FECHA:
     CLRF    PORTA
     BSF	    PORTA,1
     
+    /*BTFSS   PORTB,EDIT
+    GOTO    SET_FECHA
+    */
 	CALL	FORMATO
 	
 	CALL	SPLIT_m_F
@@ -504,11 +530,31 @@ RETURN
 	    MOVWF   u_mes
 	   	
 	RETURN
-
-    
+	/*
+	SET_FECHA:
+	    BTFSS   PORTB,UP
+	    INCF    dia
+	    BTFSS   PORTB,DOWN
+	    DECF    dia
+	    
+	    BTFSS   PORTB,EDIT
+	    GOTO    SET_FECHA2
+	    GOTO    $-6
+	    
+	    SET_FECHA2:
+		BTFSS   PORTB,UP
+		INCF    mes
+		BTFSS   PORTB,DOWN
+		DECF    mes
+		
+		BTFSS   PORTB,EDIT
+		GOTO    FECHA
+		GOTO    $-6
+    */
     
 
     TEMPORIZADOR:
+    
     CLRF    PORTA
     BSF	    PORTA,2
     
@@ -517,7 +563,10 @@ RETURN
     
     BTFSS   PORTB,DOWN
     BCF	    tempEnable,0
-	
+/*
+    BTFSS   PORTB,EDIT
+    GOTO    SET_TEMP
+*/
 	CALL	SPLIT_M_T
 	;SET display0 - unidades de segundo temp
 	MOVF	u_segT,0
@@ -575,9 +624,27 @@ RETURN
 	    MOVWF   u_segT
 	   	
 	RETURN
-    
-	
-	
+  /*  
+	SET_TEMP:
+	    BTFSS   PORTB,UP
+	    INCF    segundosT
+	    BTFSS   PORTB,DOWN
+	    DECF    segundosT
+	    
+	    BTFSS   PORTB,EDIT
+	    GOTO    SET_TEMP2
+	    GOTO    $-6
+	    
+	    SET_TEMP2:
+		BTFSS   PORTB,UP
+		INCF    minutosT
+		BTFSS   PORTB,DOWN
+		DECF    minutosT
+		
+		BTFSS   PORTB,EDIT
+		GOTO    TEMPORIZADOR
+		GOTO    $-6
+*/	
     RETURN
 
     ALARMA:
