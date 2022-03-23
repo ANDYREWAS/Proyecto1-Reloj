@@ -1,10 +1,6 @@
 ; Dispositivo:	PIC16F887
 ; Autor:	Andres Najera
-; Compilador:	pic-as (v2.35), MPLABX V6.00
-;              
-; Creado:	21 feb 2022
-; Última modificación: 21 feb 2022
-    
+; Compilador:	pic-as (v2.35), MPLABX V6.00    
 PROCESSOR 16F887
     
 ; PIC16F887 Configuration Bit Settings
@@ -72,6 +68,8 @@ PSECT udata_bank0
     d_hora:		DS 1
     
     temp:		DS 1
+    cociente:		DS 1
+    residuo:		DS 1
     
     
     dia:		DS 1	;Variables fecha
@@ -166,10 +164,7 @@ INT_PORTB:
     SUBWF   modo,0
     BTFSC   STATUS,2
     CLRF    modo
-    ;movemos modo a W para luego sumarselo a PCLATH
-    
-    BTFSC   PORTB, EDIT
-    CALL    CONFIG_SELECT
+    ;movemos modo a W para luego sumarselo a PCLAT
     
     BCF	    RBIF	    ; Limpiamos bandera de interrupción  
 RETURN
@@ -255,9 +250,6 @@ DIRECCIONAMIENTO:
    
 
     RELOJ:
-	CLRF	config_select
-	BSF	config_select,0
-	
     
 	CALL	DECENAS_M_R
 	;SET display0 - unidades de minuto
@@ -289,8 +281,8 @@ DIRECCIONAMIENTO:
 	    MOVLW	10
 	    SUBWF	temp,1			;Le restamos 10 a ver cuantas decenas de minutos hay
 	    BTFSS	STATUS,0		;revisamos el Carry
-	    GOTO    UNIDADES_M_R
-	    INCF	d_min			;aqui está el error, mientras haya carry se mantendrá aumentando las decenas, no cada que haya pasado 10 min
+	    GOTO	UNIDADES_M_R		;ERROR
+	    INCF	d_min
 	    GOTO	$-5
 
 
@@ -319,31 +311,9 @@ DIRECCIONAMIENTO:
 	    MOVF	temp,0
 	    MOVWF	u_hora	
 	RETURN
-	
-	;___CONFIGURACION___
-
-	configmR:
-	    BTFSC	PORTD,UP
-	    INCF	minutosR
-	    BTFSC	PORTD,DOWN
-	    DECF	minutosR
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	confighR
-
-	confighR:
-	    BTFSC	PORTD,UP
-	    INCF	horasR
-	    BTFSC	PORTD,DOWN
-	    DECF	horasR
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	RELOJ
     
     FECHA:
-	CLRF	config_select
-	BSF	config_select,1
-	
+
 	;SET display0 - unidades mes
 	MOVF	mes,0	
 	CALL	TABLA_7SEG
@@ -353,34 +323,10 @@ DIRECCIONAMIENTO:
 	MOVF	dia,0	
 	CALL	TABLA_7SEG
 	MOVWF	display
-	
-	;___CONFIGURACION___
-
-	configD:
-	    BTFSC	PORTD,UP
-	    INCF	dia
-	    BTFSC	PORTD,DOWN
-	    DECF	dia
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	confighM
-
-	confighM:
-	    BTFSC	PORTD,UP
-	    INCF	mes
-	    BTFSC	PORTD,DOWN
-	    DECF	mes
-
-	    BTFSC	PORTD,EDIT
-	    GOTO	FECHA
-	
 
     RETURN
 
     TEMPORIZADOR:
-	CLRF	config_select
-	BSF	config_select,2
-
 	
     RETURN
 
@@ -388,15 +334,7 @@ DIRECCIONAMIENTO:
 
     RETURN
 
-    
-CONFIG_SELECT:
-	BTFSC	config_select,0
-	GOTO	configmR
-	
-	BTFSC	config_select,1
-	GOTO	configD
-	
-    
+    	
 MULTIPLEXADO:
     MOSTRAR_VALOR:			;Multiplexado
 	BTFSC    PORTD,0
@@ -562,8 +500,8 @@ RETURN
 ORG 300h
 TABLA_7SEG:
     CLRF    PCLATH		; Limpiamos registro PCLATH
-    BSF	    PCLATH, 1		; Posicionamos el PC en dirección 02xxh
-    BSF	    PCLATH, 0		; Posicionamos el PC en dirección 02xxh
+    BSF	    PCLATH, 1		; Posicionamos el PC en dirección 03xxh
+    BSF	    PCLATH, 0		; Posicionamos el PC en dirección 03xxh
     ANDLW   0x0F		; no saltar más del tamaño de la tabla
     ADDWF   PCL
     RETLW   00111111B	;0
@@ -578,5 +516,24 @@ TABLA_7SEG:
     RETLW   01101111B	;9
 
 
-
+TABLA_FECHA:
+    CLRF    PCLATH		; Limpiamos registro PCLATH
+    BSF	    PCLATH, 1		; Posicionamos el PC en dirección 03xxh
+    BSF	    PCLATH, 0		; Posicionamos el PC en dirección 03xxh
+    ANDLW   0x0F		; no saltar más del tamaño de la tabla
+    ADDWF   PCL
+    RETLW   0		;0
+    RETLW   31		;ENERO
+    RETLW   28		;FEBRERO
+    RETLW   31		;MARZO
+    RETLW   30		;ABRIL
+    RETLW   31		;MAYO
+    RETLW   30		;JUNIO
+    RETLW   31		;JULIO
+    RETLW   31		;AGOSTO
+    RETLW   30		;SEPTIEMBRE
+    RETLW   31		;OCTUBRE
+    RETLW   30		;NOVIEMBRE
+    RETLW   31		;DICIEMBRE
+    
 
