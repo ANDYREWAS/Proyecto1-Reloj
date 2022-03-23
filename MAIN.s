@@ -55,7 +55,7 @@ WDIVL	MACRO divisor
 	
 	MOVLW	divisor  
 	SUBWF	temp, f	
-	BTFSC   STATUS,0    
+	BTFSC   STATUS,0  ;Carry?  
 	GOTO	$-4   
 	
 	MOVLW	divisor	    
@@ -93,7 +93,20 @@ PSECT udata_bank0
     
     dia:		DS 1	;Variables fecha
     mes:		DS 1
-    config_select:	DS 1
+    u_dia:	    	DS 1
+    d_dia:	    	DS 1
+    u_mes:	    	DS 1
+    d_mes:	    	DS 1
+    temp_d:		DS 1
+    
+    
+    minutosT:		DS 1
+    segundosT:		DS 1
+    
+    u_minT:		DS 1
+    d_minT:		DS 1
+    u_segT:		DS 1
+    d_segT:		DS 1
     
 PSECT resVect, class=CODE, abs, delta=2
 ORG 00h			    ; posición 0000h para el reset
@@ -153,10 +166,25 @@ INT_TMR1:
     MOVLW   24
     SUBWF   horasR,0
     BTFSS   STATUS,2
-    GOTO    $+3
+    RETURN
     INCF    dia
     CLRF    horasR
     
+    MOVF    mes,0
+    CALL    TABLA_FECHA
+    SUBWF   dia,0
+    BTFSS   STATUS,2
+    GOTO    $+10
+    INCF    mes
+    MOVLW   1
+    MOVWF   dia
+    
+    MOVLW   13
+    SUBWF   mes,0
+    BTFSS   STATUS,2
+    GOTO    $+3
+    MOVLW   1
+    MOVWF   mes
     
 RETURN
 
@@ -185,6 +213,8 @@ INT_PORTB:
     CLRF    modo
     ;movemos modo a W para luego sumarselo a PCLAT
     
+    
+    
     BCF	    RBIF	    ; Limpiamos bandera de interrupción  
 RETURN
     
@@ -199,7 +229,6 @@ MAIN:
     CALL    CONFIG_TMR1	    ; Configuración de TMR1
     CALL    CONFIG_TMR2	    ; Configuración de TMR2
     CALL    CONFIG_INT	    ; Configuración de interrupciones
-    ;CALL    CLEARVARS
     CLRF    PORTA
     BANKSEL PORTD	    ; Cambio a banco 00
     BSF	    PORTD,0	    ; Predeterminado a encender el display 0 primero
@@ -217,36 +246,14 @@ MAIN:
     MOVLW   59
     MOVWF   minutosR
     
-    MOVLW   1
+    MOVLW   31
     MOVWF   dia
     
-    MOVLW   1
+    MOVLW   12
     MOVWF   mes
-/*    
-CLEARVARS:
-    CLRF LED		
-    CLRF modo		
-    CLRF display		
-    CLRF display1		
-    CLRF display2		
-    CLRF display3		
-    CLRF segundosR		
-    CLRF minutosR		
-    CLRF horasR	
-    CLRF u_min		
-    CLRF d_min		
-    CLRF u_hora		
-    CLRF d_hora		   
-    CLRF temp1		
-    CLRF temp2		
-    CLRF dia		
-    CLRF mes		
-RETURN 
-  */  
+
 LOOP:
-    MOVF    modo,0
-    MOVWF   PORTA
-    
+   
     CALL    DIRECCIONAMIENTO					;Código que se va a estar ejecutando mientras no hayan interrupciones
     CALL    MULTIPLEXADO
     GOTO    LOOP	
@@ -269,6 +276,8 @@ DIRECCIONAMIENTO:
    
 
     RELOJ:
+    CLRF    PORTA
+    BSF	    PORTA,0
     
 	CALL	SPLIT_M_R
 	;SET display0 - unidades de minuto
@@ -294,14 +303,8 @@ DIRECCIONAMIENTO:
 	MOVWF	display2
 
 	SPLIT_M_R:    
-	    MOVF    minutosR, W ;
-    
-	    WDIVL   196		    
-	    MOVF    cociente, W
-	    MOVWF   d_min	    
-	    MOVF    residuo, W
-	    MOVWF   u_min
-
+	    MOVF    minutosR, W 
+   
 	    WDIVL   60		    
 	    MOVF    cociente, W
 	    MOVWF   d_min	   
@@ -318,14 +321,8 @@ DIRECCIONAMIENTO:
 
 
 	SPLIT_H_R:    
-	    MOVF    horasR, W ;
+	    MOVF    horasR, W 
     
-	    WDIVL   232	    
-	    MOVF    cociente, W
-	    MOVWF   d_hora	    
-	    MOVF    residuo, W
-	    MOVWF   u_hora
-
 	    WDIVL   24		    
 	    MOVF    cociente, W
 	    MOVWF   d_hora	   
@@ -341,25 +338,103 @@ DIRECCIONAMIENTO:
 	RETURN
    
     FECHA:
-
-	;SET display0 - unidades mes
-	MOVF	mes,0	
+    CLRF    PORTA
+    BSF	    PORTA,1
+    
+	CALL	FORMATO
+	
+	CALL	SPLIT_m_F
+	;SET display1 - unidades mes
+	MOVF	u_mes,0	
 	CALL	TABLA_7SEG
 	MOVWF	display1
 	
+	;SET display2 - unidades mes
+	MOVF	d_mes,0	
+	CALL	TABLA_7SEG
+	MOVWF	display2
+	
+	CALL	SPLIT_d_F
 	;SET display0 - unidades dia
-	MOVF	dia,0	
+	MOVF	u_dia,0	
 	CALL	TABLA_7SEG
 	MOVWF	display
+	
+	;SET display3 - unidades mes
+	MOVF	d_dia,0	
+	CALL	TABLA_7SEG
+	MOVWF	display3
 
-    RETURN
+	
+	FORMATO:
+	    MOVF    mes,w
+	    CALL    TABLA_FECHA	    ;nos devuelve la cantidad de dias que tiene el mes en W
+	    SUBWF   dia,w
+	    BTFSC   STATUS,2	    ;verificamos que no se pongan mas dias de los que tiene el mes
+	    CLRF    dia
+	    
+	
+	    MOVF    mes,w
+	    CALL    TABLA_FECHA	    ;nos devuelve la cantidad de dias que tiene el mes en W
+	    SUBWF   dia,w
+	    BTFSS   STATUS,0	    ;verificamos que no haya carry, si hay, que cargue la cantidad de días que tiene el mes
+	    GOTO    $+3
+	    MOVF    mes,w
+	    MOVWF   dia
+	RETURN
+	
+	SPLIT_d_F:    
+	    
+	    MOVF    mes,W
+	    CALL    TABLA_FECHA
+	    MOVWF   temp_d	;se guarda en temp la cantidad de dias que tiene el mes
+   
+	    MOVF    dia, W 
+	    WDIVL   temp_d	 ;30,31,28   
+	    MOVF    cociente, W
+	    MOVWF   d_dia	   
+	    MOVF    residuo, W
+	    MOVWF   u_dia
+
+	    WDIVL   10		     
+	    MOVF    cociente, W
+	    MOVWF   d_dia	     
+	    MOVF    residuo, W
+	    MOVWF   u_dia
+	RETURN
+	    
+
+
+	SPLIT_m_F:    
+	    MOVF    mes, W 
+
+	    WDIVL   13		    
+	    MOVF    cociente, W
+	    MOVWF   d_mes	   
+	    MOVF    residuo, W
+	    MOVWF   u_mes
+
+	    WDIVL   10		     
+	    MOVF    cociente, W
+	    MOVWF   d_mes	     
+	    MOVF    residuo, W
+	    MOVWF   u_mes
+	   	
+	RETURN
+
+    
+    
 
     TEMPORIZADOR:
+    CLRF    PORTA
+    BSF	    PORTA,2
+	  
+	
 	
     RETURN
 
     ALARMA:
-
+    GOTO    RELOJ
     RETURN
 
     	
@@ -551,17 +626,17 @@ TABLA_FECHA:
     ANDLW   0x0F		; no saltar más del tamaño de la tabla
     ADDWF   PCL
     RETLW   0		;0
-    RETLW   31		;ENERO
-    RETLW   28		;FEBRERO
-    RETLW   31		;MARZO
-    RETLW   30		;ABRIL
-    RETLW   31		;MAYO
-    RETLW   30		;JUNIO
-    RETLW   31		;JULIO
-    RETLW   31		;AGOSTO
-    RETLW   30		;SEPTIEMBRE
-    RETLW   31		;OCTUBRE
-    RETLW   30		;NOVIEMBRE
-    RETLW   31		;DICIEMBRE
+    RETLW   32		;ENERO
+    RETLW   29		;FEBRERO
+    RETLW   32		;MARZO
+    RETLW   31		;ABRIL
+    RETLW   32		;MAYO
+    RETLW   31		;JUNIO
+    RETLW   32		;JULIO
+    RETLW   32		;AGOSTO
+    RETLW   31		;SEPTIEMBRE
+    RETLW   32		;OCTUBRE
+    RETLW   31		;NOVIEMBRE
+    RETLW   32		;DICIEMBRE
     
 
