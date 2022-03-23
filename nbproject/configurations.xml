@@ -65,6 +65,12 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <item path="Main_Reloj.s" ex="true" overriding="false">
+        <pic-as-assembler>
+        </pic-as-assembler>
+        <pic-as-global>
+        </pic-as-global>
+        <pic-as-linker>
+        </pic-as-linker>
       </item>
       <pic-as-assembler>
         <property key="fmax-errors" value="20"/>
