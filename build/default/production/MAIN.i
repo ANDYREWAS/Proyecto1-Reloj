@@ -13,7 +13,7 @@ PROCESSOR 16F887
 ; CONFIG1
   CONFIG FOSC = INTRC_NOCLKOUT ; Oscillator Selection bits (INTOSCIO oscillator: I/O function on RA6/OSC2/CLKOUT pin, I/O function on RA7/OSC1/CLKIN)
   CONFIG WDTE = OFF ; Watchdog Timer Enable bit (WDT disabled and can be enabled by SWDTEN bit of the WDTCON register)
-  CONFIG PWRTE = OFF ; Power-up Timer Enable bit (PWRT enabled)
+  CONFIG PWRTE = ON ; Power-up Timer Enable bit (PWRT enabled)
   CONFIG MCLRE = OFF ; RE3/MCLR pin function select bit (RE3/MCLR pin function is digital input, MCLR internally tied to VDD)
   CONFIG CP = OFF ; Code Protection bit (Program memory code protection is disabled)
   CONFIG CPD = OFF ; Data Code Protection bit (Data memory code protection is disabled)
@@ -2548,6 +2548,16 @@ PSECT udata_bank0
     d_mes: DS 1
     temp_d: DS 1
 
+
+    minutosT: DS 1 ;Variables temporizador
+    segundosT: DS 1
+    tempEnable: DS 1
+
+    u_minT: DS 1
+    d_minT: DS 1
+    u_segT: DS 1
+    d_segT: DS 1
+
 PSECT resVect, class=CODE, abs, delta=2
 ORG 00h ; posición 0000h para el reset
 ;------------ VECTOR RESET --------------
@@ -2589,6 +2599,10 @@ RETURN
 
 INT_TMR1:
     RESET_TMR1 0xE0, 0xC0 ; Reiniciamos TMR1 para 1000ms
+
+    ;FUNCIONAMIENTO RELOJ
+    CALL TEMP_CONFIG
+
     DECFSZ segundosR
     RETURN
     MOVLW 60
@@ -2614,7 +2628,7 @@ INT_TMR1:
     CALL TABLA_FECHA
     SUBWF dia,0
     BTFSS STATUS,2
-    GOTO $+10
+    RETURN
     INCF mes
     MOVLW 1
     MOVWF dia
@@ -2622,9 +2636,15 @@ INT_TMR1:
     MOVLW 13
     SUBWF mes,0
     BTFSS STATUS,2
-    GOTO $+3
+    RETURN
     MOVLW 1
     MOVWF mes
+
+
+
+
+
+
 
 RETURN
 
@@ -2653,6 +2673,8 @@ INT_PORTB:
     CLRF modo
     ;movemos modo a W para luego sumarselo a PCLAT
 
+
+    BCF PORTE,1 ;siempre que presionemos cualquier botón apaga el buzzer del timer
     BCF ((INTCON) and 07Fh), 0 ; Limpiamos bandera de interrupción
 RETURN
 
@@ -2666,8 +2688,8 @@ MAIN:
     CALL CONFIG_TMR0 ; Configuración de TMR0
     CALL CONFIG_TMR1 ; Configuración de TMR1
     CALL CONFIG_TMR2 ; Configuración de TMR2
+    CALL CLEARVARS
     CALL CONFIG_INT ; Configuración de interrupciones
-    ;CALL CLEARVARS
     CLRF PORTA
     BANKSEL PORTD ; Cambio a banco 00
     BSF PORTD,0 ; Predeterminado a encender el display 0 primero
@@ -2679,27 +2701,70 @@ MAIN:
     MOVLW 60 ;precarga segundos
     MOVWF segundosR
 
-    MOVLW 23
+    MOVLW 1
     MOVWF horasR
 
-    MOVLW 59
+    MOVLW 1
     MOVWF minutosR
 
-    MOVLW 31
+    MOVLW 28
     MOVWF dia
 
-    MOVLW 12
+    MOVLW 2
     MOVWF mes
-# 265 "MAIN.s"
+
+    MOVLW 15
+    MOVWF segundosT
+
+    MOVLW 0
+    MOVWF minutosT
+
+
 LOOP:
 
     CALL DIRECCIONAMIENTO ;Código que se va a estar ejecutando mientras no hayan interrupciones
     CALL MULTIPLEXADO
     GOTO LOOP
 
+CLEARVARS:
+    CLRF LED
+    CLRF modo
+    CLRF display
+    CLRF display1
+    CLRF display2
+    CLRF display3
+    CLRF segundosR
+    CLRF minutosR
+    CLRF horasR
+    CLRF u_min
+    CLRF d_min
+    CLRF u_hora
+    CLRF d_hora
+    CLRF dia
+    CLRF mes
 
+    CLRF temp
+    CLRF cociente
+    CLRF residuo
 
+    CLRF dia
+    CLRF mes
+    CLRF u_dia
+    CLRF d_dia
+    CLRF u_mes
+    CLRF d_mes
+    CLRF temp_d
 
+    CLRF minutosT
+    CLRF segundosT
+    CLRF tempEnable
+
+    CLRF u_minT
+    CLRF d_minT
+    CLRF u_segT
+    CLRF d_segT
+
+RETURN
 
 DIRECCIONAMIENTO:
     CLRF PCLATH ; Limpiamos registro PCLATH
@@ -2712,11 +2777,27 @@ DIRECCIONAMIENTO:
     GOTO TEMPORIZADOR
     GOTO ALARMA
 
-
+TEMP_CONFIG:
+# 347 "MAIN.s"
+    BTFSC tempEnable,0
+    DECFSZ segundosT
+    RETURN
+    DECF minutosT
+    BTFSC STATUS,0 ;vemos si hubo Carry
+    GOTO $+4
+    MOVLW 60
+    MOVWF segundosT
+    RETURN
+    BCF tempEnable,0
+    CLRF minutosT
+    BSF PORTE,1
+RETURN
 
     RELOJ:
     CLRF PORTA
     BSF PORTA,0
+    BTFSS PORTB,EDIT
+    GOTO SET_RELOJ
 
  CALL SPLIT_M_R
  ;SET display0 - unidades de minuto
@@ -2776,9 +2857,33 @@ DIRECCIONAMIENTO:
 
  RETURN
 
+ SET_RELOJ:
+     BTFSS PORTB,UP
+     INCF minutosR
+     BTFSS PORTB,DOWN
+     DECF minutosR
+
+     BTFSS PORTB,EDIT
+     GOTO SET_RELOJ2
+     GOTO $-6
+
+     SET_RELOJ2:
+  BTFSS PORTB,UP
+  INCF horasR
+  BTFSS PORTB,DOWN
+  DECF horasR
+
+  BTFSS PORTB,EDIT
+  GOTO RELOJ
+  GOTO $-6
+
+
     FECHA:
     CLRF PORTA
     BSF PORTA,1
+
+
+
 
  CALL FORMATO
 
@@ -2860,15 +2965,79 @@ DIRECCIONAMIENTO:
      MOVWF u_mes
 
  RETURN
-
-
-
-
+# 556 "MAIN.s"
     TEMPORIZADOR:
+
     CLRF PORTA
     BSF PORTA,2
 
+    BTFSS PORTB,UP
+    BSF tempEnable,0
 
+    BTFSS PORTB,DOWN
+    BCF tempEnable,0
+
+
+
+
+ CALL SPLIT_M_T
+ ;SET display0 - unidades de segundo temp
+ MOVF u_segT,0
+ CALL TABLA_7SEG
+ MOVWF display
+
+ ;SET display1 - Decenas de segundo temp
+ MOVF d_segT,0
+ CALL TABLA_7SEG
+ MOVWF display3
+
+
+ CALL SPLIT_S_T
+ ;SET display0 - unidades de minuto temp
+ MOVF u_minT,0
+ CALL TABLA_7SEG
+ MOVWF display1
+
+ ;SET display1 - Decenas de minuto temp
+ MOVF d_minT,0
+ CALL TABLA_7SEG
+ MOVWF display2
+
+ SPLIT_M_T:
+     MOVF minutosT, W
+
+     WDIVL 60
+     MOVF cociente, W
+     MOVWF d_minT
+     MOVF residuo, W
+     MOVWF u_minT
+
+     WDIVL 10
+     MOVF cociente, W
+     MOVWF d_minT
+     MOVF residuo, W
+     MOVWF u_minT
+ RETURN
+
+
+
+ SPLIT_S_T:
+     MOVF segundosT, W
+
+     WDIVL 60
+     MOVF cociente, W
+     MOVWF d_segT
+     MOVF residuo, W
+     MOVWF u_segT
+
+     WDIVL 10
+     MOVF cociente, W
+     MOVWF d_segT
+     MOVF residuo, W
+     MOVWF u_segT
+
+ RETURN
+# 648 "MAIN.s"
     RETURN
 
     ALARMA:

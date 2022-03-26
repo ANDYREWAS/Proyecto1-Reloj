@@ -252,16 +252,16 @@ MAIN:
     MOVLW   60		    ;precarga segundos
     MOVWF   segundosR
     
-    MOVLW   23
+    MOVLW   1
     MOVWF   horasR
     
-    MOVLW   59
+    MOVLW   1
     MOVWF   minutosR
     
-    MOVLW   31
+    MOVLW   28
     MOVWF   dia
     
-    MOVLW   12
+    MOVLW   2
     MOVWF   mes
     
     MOVLW   15
@@ -361,9 +361,9 @@ RETURN
     RELOJ:
     CLRF    PORTA
     BSF	    PORTA,0
-    /*BTFSS   PORTB,EDIT
+    BTFSS   PORTB,EDIT
     GOTO    SET_RELOJ
-    */
+  
 	CALL	SPLIT_M_R
 	;SET display0 - unidades de minuto
 	MOVF	u_min,0
@@ -421,7 +421,7 @@ RETURN
 	    MOVWF   u_hora
 	   	
 	RETURN
-	/*
+	
 	SET_RELOJ:
 	    BTFSS   PORTB,UP
 	    INCF    minutosR
@@ -442,7 +442,7 @@ RETURN
 		GOTO    RELOJ
 		GOTO    $-6
 	    
-   */
+   
     FECHA:
     CLRF    PORTA
     BSF	    PORTA,1
@@ -624,7 +624,7 @@ RETURN
 	    MOVWF   u_segT
 	   	
 	RETURN
-  /*  
+  /* 
 	SET_TEMP:
 	    BTFSS   PORTB,UP
 	    INCF    segundosT
