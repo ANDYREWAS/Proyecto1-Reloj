@@ -2500,11 +2500,11 @@ WDIVL MACRO divisor
 
  MOVWF temp+0
  CLRF temp+1
- INCF temp+1 ;ver cuantas veces se a restado
+ INCF temp+1 ; ¿Cuantas veces ha restado?
 
  MOVLW divisor
  SUBWF temp, f
- BTFSC STATUS,0 ;Carry?
+ BTFSC STATUS,0 ; ¿Carry?
  GOTO $-4
 
  MOVLW divisor
@@ -2639,13 +2639,6 @@ INT_TMR1:
     RETURN
     MOVLW 1
     MOVWF mes
-
-
-
-
-
-
-
 RETURN
 
 INT_TMR2:
@@ -2694,7 +2687,9 @@ MAIN:
     BANKSEL PORTD ; Cambio a banco 00
     BSF PORTD,0 ; Predeterminado a encender el display 0 primero
 
-       ;Precarga de los dos leds parapadeantes 1/2seg
+
+
+    ;Precarga de valores a variables
     MOVLW 2
     MOVWF LED
 
@@ -2726,7 +2721,7 @@ LOOP:
     CALL MULTIPLEXADO
     GOTO LOOP
 
-CLEARVARS:
+CLEARVARS: ;Subrutina que limpia las variables para evitar ambiguedades
     CLRF LED
     CLRF modo
     CLRF display
@@ -2778,7 +2773,7 @@ DIRECCIONAMIENTO:
     GOTO ALARMA
 
 TEMP_CONFIG:
-# 347 "MAIN.s"
+# 342 "MAIN.s"
     BTFSC tempEnable,0
     DECFSZ segundosT
     RETURN
@@ -2796,8 +2791,8 @@ RETURN
     RELOJ:
     CLRF PORTA
     BSF PORTA,0
-    BTFSS PORTB,EDIT
-    GOTO SET_RELOJ
+    ;BTFSS PORTB,EDIT
+    ;GOTO SET_RELOJ
 
  CALL SPLIT_M_R
  ;SET display0 - unidades de minuto
@@ -2822,7 +2817,7 @@ RETURN
  CALL TABLA_7SEG
  MOVWF display2
 
- SPLIT_M_R:
+ SPLIT_M_R: ;Las subrutinas SPLIT son para la separacion de la variable en unidades y decenas
      MOVF minutosR, W
 
      WDIVL 60
@@ -2856,28 +2851,7 @@ RETURN
      MOVWF u_hora
 
  RETURN
-
- SET_RELOJ:
-     BTFSS PORTB,UP
-     INCF minutosR
-     BTFSS PORTB,DOWN
-     DECF minutosR
-
-     BTFSS PORTB,EDIT
-     GOTO SET_RELOJ2
-     GOTO $-6
-
-     SET_RELOJ2:
-  BTFSS PORTB,UP
-  INCF horasR
-  BTFSS PORTB,DOWN
-  DECF horasR
-
-  BTFSS PORTB,EDIT
-  GOTO RELOJ
-  GOTO $-6
-
-
+# 441 "MAIN.s"
     FECHA:
     CLRF PORTA
     BSF PORTA,1
@@ -2965,7 +2939,7 @@ RETURN
      MOVWF u_mes
 
  RETURN
-# 556 "MAIN.s"
+# 551 "MAIN.s"
     TEMPORIZADOR:
 
     CLRF PORTA
@@ -3037,7 +3011,7 @@ RETURN
      MOVWF u_segT
 
  RETURN
-# 648 "MAIN.s"
+# 643 "MAIN.s"
     RETURN
 
     ALARMA:
@@ -3120,7 +3094,7 @@ CONFIG_TMR1:
     BCF ((T1CON) and 07Fh), 1 ; Reloj interno
     BSF ((T1CON) and 07Fh), 0 ; Prendemos TMR1
 
-    RESET_TMR1 0xE0, 0xC0 ; Reiniciamos TMR1 para 1000ms
+    RESET_TMR1 0xE1, 0x7C ; Reiniciamos TMR1 para 1000ms
     RETURN
 
 CONFIG_TMR2:

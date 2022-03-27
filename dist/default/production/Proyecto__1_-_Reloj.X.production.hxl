@@ -10,11 +10,13 @@
  Intel Hex-file ranges:
   0h - 5h		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
   8h - A7h		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
-  200h - 641h		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
+  200h - 5DFh		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
+  600h - 641h		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
   400Eh - 4011h		(dist/default/production\Proyecto__1_-_Reloj.X.production.hex)
  Unused ranges:
   6h - 7h
   A8h - 1FFh
+  5E0h - 5FFh
   642h - 400Dh
 
 ### Hex Memory Map ###
@@ -98,8 +100,7 @@
 000005B0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 000005C0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 000005D0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
-000005E0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
-000005F0 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
+----------------------------------------------------------
 00000600 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00000610 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
 00000620 | H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1 H1
