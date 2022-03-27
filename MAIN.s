@@ -51,11 +51,11 @@ WDIVL	MACRO divisor
 						    
 	MOVWF	temp+0   
 	CLRF	temp+1 
-	INCF	temp+1   ;ver cuantas veces se a restado
+	INCF	temp+1	    ; ¿Cuantas veces  ha restado?
 	
 	MOVLW	divisor  
 	SUBWF	temp, f	
-	BTFSC   STATUS,0  ;Carry?  
+	BTFSC   STATUS,0    ; ¿Carry?  
 	GOTO	$-4   
 	
 	MOVLW	divisor	    
@@ -66,7 +66,7 @@ WDIVL	MACRO divisor
 	
 	ENDM
     
-PSECT udata_shr		    ; Memoria compartida
+PSECT udata_shr			; Memoria compartida
     W_TEMP:		DS 1
     STATUS_TEMP:	DS 1
 
@@ -190,13 +190,6 @@ INT_TMR1:
     RETURN
     MOVLW   1
     MOVWF   mes
-    
-    
-  
-    
-    
-    
-    
 RETURN
 
 INT_TMR2:
@@ -245,7 +238,9 @@ MAIN:
     BANKSEL PORTD	    ; Cambio a banco 00
     BSF	    PORTD,0	    ; Predeterminado a encender el display 0 primero
     
-			    ;Precarga de los dos leds parapadeantes 1/2seg
+
+    
+    ;Precarga de valores a variables
     MOVLW   2		    
     MOVWF   LED
     
@@ -273,11 +268,11 @@ MAIN:
     
 LOOP:
    
-    CALL    DIRECCIONAMIENTO					;Código que se va a estar ejecutando mientras no hayan interrupciones
+    CALL    DIRECCIONAMIENTO	;Código que se va a estar ejecutando mientras no hayan interrupciones
     CALL    MULTIPLEXADO
     GOTO    LOOP	
    
-CLEARVARS:
+CLEARVARS:			;Subrutina que limpia las variables para evitar ambiguedades
     CLRF LED		
     CLRF modo		
     CLRF display		
@@ -320,7 +315,7 @@ RETURN
 DIRECCIONAMIENTO:
     CLRF    PCLATH			; Limpiamos registro PCLATH		
     BSF	    PCLATH, 0			; Posicionamos el PC en dirección 04xxh
-    MOVF    modo,0	    ; Movemos el valor de la bandera modo a W 
+    MOVF    modo,0			; Movemos el valor de la bandera modo a W 
     ANDLW   0x03			; no saltar más del tamaño de la tabla
     ADDWF   PCL
     GOTO    RELOJ
@@ -361,8 +356,8 @@ RETURN
     RELOJ:
     CLRF    PORTA
     BSF	    PORTA,0
-    BTFSS   PORTB,EDIT
-    GOTO    SET_RELOJ
+    ;BTFSS   PORTB,EDIT
+    ;GOTO    SET_RELOJ
   
 	CALL	SPLIT_M_R
 	;SET display0 - unidades de minuto
@@ -387,7 +382,7 @@ RETURN
 	CALL	TABLA_7SEG
 	MOVWF	display2
 
-	SPLIT_M_R:    
+	SPLIT_M_R:			;Las subrutinas SPLIT son para la separacion de la variable en unidades y decenas
 	    MOVF    minutosR, W 
    
 	    WDIVL   60		    
@@ -421,7 +416,7 @@ RETURN
 	    MOVWF   u_hora
 	   	
 	RETURN
-	
+	/* 		    Modo de config, comentado
 	SET_RELOJ:
 	    BTFSS   PORTB,UP
 	    INCF    minutosR
@@ -441,7 +436,7 @@ RETURN
 		BTFSS   PORTB,EDIT
 		GOTO    RELOJ
 		GOTO    $-6
-	    
+	    */
    
     FECHA:
     CLRF    PORTA
@@ -530,7 +525,7 @@ RETURN
 	    MOVWF   u_mes
 	   	
 	RETURN
-	/*
+	/*			    Modo de config, comentado
 	SET_FECHA:
 	    BTFSS   PORTB,UP
 	    INCF    dia
@@ -624,7 +619,7 @@ RETURN
 	    MOVWF   u_segT
 	   	
 	RETURN
-  /* 
+  /*				    Modo de config, comentado
 	SET_TEMP:
 	    BTFSS   PORTB,UP
 	    INCF    segundosT
@@ -727,7 +722,7 @@ CONFIG_TMR1:
     BCF	    TMR1CS	    ; Reloj interno
     BSF	    TMR1ON	    ; Prendemos TMR1
     
-    RESET_TMR1 0xE0, 0xC0   ; Reiniciamos TMR1 para 1000ms
+    RESET_TMR1 0xE1, 0x7C   ; Reiniciamos TMR1 para 1000ms
     RETURN
 
 CONFIG_TMR2:
